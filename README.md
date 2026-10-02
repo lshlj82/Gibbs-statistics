@@ -56,7 +56,9 @@ python3 -m http.server 8000
 ## Technical notes
 
 - Plain HTML, CSS, and vanilla JavaScript drawn on `<canvas>`. No frameworks, no build step.
-- The only external resources are the Newsreader and Instrument Sans fonts from Google Fonts, with system font fallbacks if they fail to load.
+- Equations are typeset with [MathJax 3](https://www.mathjax.org/) (SVG output, loaded from cdnjs), so they need no extra web fonts.
+- The only other external resources are the Newsreader and Instrument Sans fonts from Google Fonts, with system font fallbacks if they fail to load.
+- Opening the page requires an internet connection for MathJax; offline, the equations appear as raw TeX.
 - Supports light and dark mode via `prefers-color-scheme`, and honors `prefers-reduced-motion` (animations start paused).
 - Responsive down to phone widths.
 - Boltzmann constant used: k<sub>B</sub> = 8.617 × 10⁻⁵ eV/K.

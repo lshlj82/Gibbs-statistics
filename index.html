@@ -51,13 +51,17 @@ p{margin:0 0 1rem}
 .note{font-size:.95rem;color:var(--muted)}
 
 /* math */
-.eq{display:block;text-align:center;margin:1.25rem 0;font-size:1.2rem;overflow-x:auto;padding:.25rem 0}
+.eq{display:block;text-align:center;margin:1.25rem 0;overflow-x:auto;overflow-y:hidden;padding:.25rem 0}
+mjx-container{color:inherit}
+mjx-container[display="true"]{margin:0 !important}
+.stats mjx-container,.legend mjx-container,.cap mjx-container,.ctl small mjx-container{font-size:105%}
+.ctl output mjx-container{font-size:95%}
 .m{font-style:italic}
 .frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .15em}
 .frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .2em}
 .frac>span:last-child{padding:0 .2em}
 sup,sub{font-size:.68em;line-height:0}
-.boxed{display:inline-block;border:1.5px solid var(--o2);padding:.35rem .9rem;border-radius:3px}
+.boxed{display:inline-block;border:1.5px solid var(--o2);padding:.5rem 1rem;border-radius:3px}
 
 /* layout of interactive figures */
 .fig{display:grid;grid-template-columns:minmax(0,1fr) 17rem;gap:1.5rem;align-items:start;margin-top:1.5rem}
@@ -68,7 +72,9 @@ canvas{display:block;width:100%}
 
 .ctl{font-family:var(--sans);font-size:.9rem;margin-bottom:1.1rem}
 .ctl:last-child{margin-bottom:0}
-.ctl label{display:flex;justify-content:space-between;gap:.5rem;font-weight:500;margin-bottom:.3rem}
+.ctl label{display:flex;justify-content:space-between;align-items:baseline;gap:.75rem;font-weight:500;margin-bottom:.3rem}
+.ctl label .lt{flex:1 1 auto}
+.ctl label output{flex:0 0 auto;white-space:nowrap}
 .ctl output{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:400}
 .ctl small{display:block;color:var(--muted);line-height:1.4;margin-top:.25rem}
 input[type=range]{width:100%;accent-color:var(--o2);margin:0}
@@ -115,6 +121,14 @@ button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:v
 footer{border-top:1px solid var(--rule);padding:2rem 0 3rem;font-family:var(--sans);font-size:.9rem;color:var(--muted)}
 footer p{margin:0 0 .4rem}
 </style>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
 </head>
 <body>
 
@@ -122,36 +136,36 @@ footer p{margin:0 0 .4rem}
 <header class="hero">
   <p class="credit">An interactive demo created by Claude Opus 5.5, based on the lecture notes by Sang Hoon Lee (Chapter 7, Quantum Statistics)</p>
   <h1>The grand canonical ensemble</h1>
-  <p class="lede">A small system sits against a huge reservoir at fixed temperature <span class="m">T</span> and chemical potential <span class="m">μ</span>. It trades energy and particles freely, so even <span class="m">N</span>, the number of particles inside, keeps changing. Watch it happen below.</p>
+  <p class="lede">A small system sits against a huge reservoir at fixed temperature \(T\) and chemical potential \(\mu\). It trades energy and particles freely, so even \(N\), the number of particles inside, keeps changing. Watch it happen below.</p>
 </header>
 
 <!-- ============ SIMULATION ============ -->
 <section id="exchange" aria-labelledby="h-exchange">
   <h2 id="h-exchange">Particles come and go</h2>
-  <p class="prose">The box is an ideal gas reservoir. The blue-tinted square is our system: an open region with no walls. Particles inside are drawn in blue. Every few frames the demo counts them and adds that count to the histogram, building up the probability distribution of <span class="m">N</span>.</p>
+  <p class="prose">The box is an ideal gas reservoir. The blue-tinted square is our system: an open region with no walls. Particles inside are drawn in blue. Every few frames the demo counts them and adds that count to the histogram, building up the probability distribution of \(N\).</p>
 
   <div class="fig">
     <div>
       <div class="canvas-holder"><canvas id="simCanvas" aria-label="Animation of gas particles moving between a reservoir and an open system region"></canvas></div>
       <div class="canvas-holder" style="margin-top:.75rem"><canvas id="histCanvas" aria-label="Histogram of the particle number in the system compared with the Poisson prediction"></canvas></div>
       <div class="legend">
-        <span><span class="swatch" style="background:var(--o2)"></span>Measured frequency of each <i>N</i></span>
+        <span><span class="swatch" style="background:var(--o2)"></span>Measured frequency of each \(N\)</span>
         <span><span class="swatch" style="background:var(--co)"></span>Poisson prediction with the same mean</span>
       </div>
     </div>
     <div class="panel">
       <div class="ctl">
-        <label for="muSlider">Chemical potential <output id="muOut"></output></label>
+        <label for="muSlider"><span class="lt">Chemical potential \(\mu\)</span> <output><span id="muNum"></span>\(\,k_{\mathrm{B}}T\)</output></label>
         <input type="range" id="muSlider" min="-1" max="2.5" step="0.05" value="0.6">
-        <small>Measured from a reference value. Raising <i>μ</i> by <i>k</i><sub>B</sub><i>T</i> multiplies the reservoir density by <i>e</i>, because <i>N̄</i> ∝ e<sup><i>μ</i>/<i>k</i><sub>B</sub><i>T</i></sup> for an ideal gas.</small>
+        <small>Measured from a reference value. Raising \(\mu\) by \(k_{\mathrm{B}}T\) multiplies the reservoir density by \(e\), because \(\bar{N} \propto e^{\mu/k_{\mathrm{B}}T}\) for an ideal gas.</small>
       </div>
       <div class="ctl">
-        <label for="sizeSlider">System size <output id="sizeOut"></output></label>
+        <label for="sizeSlider"><span class="lt">System size</span> <output id="sizeOut"></output></label>
         <input type="range" id="sizeSlider" min="0" max="1" step="0.01" value="0.45">
         <small>Share of the box covered by the system.</small>
       </div>
       <div class="ctl">
-        <label for="speedSlider">Animation speed <output id="speedOut"></output></label>
+        <label for="speedSlider"><span class="lt">Animation speed</span> <output id="speedOut"></output></label>
         <input type="range" id="speedSlider" min="0.25" max="3" step="0.05" value="1">
       </div>
       <div class="ctl btns">
@@ -159,15 +173,15 @@ footer p{margin:0 0 .4rem}
         <button id="clearBtn" type="button">Clear histogram</button>
       </div>
       <dl class="stats" aria-live="polite">
-        <dt>Predicted <i>N̄</i></dt><dd id="stPred">–</dd>
-        <dt>Measured <i>N̄</i></dt><dd id="stMean">–</dd>
-        <dt>Measured <i>σ<sub>N</sub></i></dt><dd id="stSig">–</dd>
-        <dt>√<i>N̄</i></dt><dd id="stSqrt">–</dd>
+        <dt>Predicted \(\bar{N}\)</dt><dd id="stPred">–</dd>
+        <dt>Measured \(\bar{N}\)</dt><dd id="stMean">–</dd>
+        <dt>Measured \(\sigma_N\)</dt><dd id="stSig">–</dd>
+        <dt>\(\sqrt{\bar{N}}\)</dt><dd id="stSqrt">–</dd>
         <dt>Samples</dt><dd id="stCount">0</dd>
       </dl>
     </div>
   </div>
-  <p class="prose note" style="margin-top:1.25rem">Give it a few seconds: the measured σ<sub><i>N</i></sub> settles onto √<i>N̄</i>, which is exactly the ideal gas result derived in Problem 7.6 further down.</p>
+  <p class="prose note" style="margin-top:1.25rem">Give it a few seconds: the measured \(\sigma_N\) settles onto \(\sqrt{\bar{N}}\), which is exactly the ideal gas result derived in Problem 7.6 further down.</p>
 </section>
 
 <!-- ============ GIBBS FACTOR ============ -->
@@ -175,45 +189,40 @@ footer p{margin:0 0 .4rem}
   <h2 id="h-gibbs">The Gibbs factor</h2>
   <div class="prose">
     <p>As in the canonical case, the probability of a system state is proportional to the number of reservoir microstates compatible with it:</p>
-    <div class="eq">
-      <span class="frac"><span><i>P</i>(<i>s</i><sub>2</sub>)</span><span><i>P</i>(<i>s</i><sub>1</sub>)</span></span>
-      =
-      <span class="frac"><span>Ω<sub><i>R</i></sub>(<i>s</i><sub>2</sub>)</span><span>Ω<sub><i>R</i></sub>(<i>s</i><sub>1</sub>)</span></span>
-      = e<sup>[<i>S<sub>R</sub></i>(<i>s</i><sub>2</sub>) − <i>S<sub>R</sub></i>(<i>s</i><sub>1</sub>)]/<i>k</i><sub>B</sub></sup>
-    </div>
-    <p>The difference now is that particles can cross the boundary, so the <i>μ</i> term in the thermodynamic identity stays (the <i>P dV</i> term is still negligible):</p>
-    <div class="eq"><i>dS<sub>R</sub></i> = <span class="frac"><span>1</span><span><i>T</i></span></span>(<i>dU<sub>R</sub></i> + <i>P dV<sub>R</sub></i> − <i>μ dN<sub>R</sub></i>)</div>
-    <p>With <i>dU<sub>R</sub></i> = −<i>dE</i> and <i>dN<sub>R</sub></i> = −<i>dN</i>, each state gets a weight called the Gibbs factor, and normalizing gives the grand partition function, or Gibbs sum:</p>
-    <div class="eq"><span class="boxed"><i>P</i>(<i>s</i>) = <span class="frac"><span>1</span><span>𝒵</span></span> e<sup>−[<i>E</i>(<i>s</i>) − <i>μN</i>(<i>s</i>)]/<i>k</i><sub>B</sub><i>T</i></sup></span></div>
-    <div class="eq">𝒵 = <span style="font-size:1.3em">∑</span><sub><i>s</i></sub> e<sup>−[<i>E</i>(<i>s</i>) − <i>μN</i>(<i>s</i>)]/<i>k</i><sub>B</sub><i>T</i></sup></div>
-    <p>The sum runs over every state of the system, including every possible value of <i>N</i>. With several particle species, <i>μN</i> becomes <i>μ<sub>A</sub>N<sub>A</sub></i> + <i>μ<sub>B</sub>N<sub>B</sub></i> + ⋯, which is exactly what we need for blood.</p>
+    <div class="eq">\[ \frac{P(s_2)}{P(s_1)} = \frac{\Omega_R(s_2)}{\Omega_R(s_1)} = e^{[S_R(s_2) - S_R(s_1)]/k_{\mathrm{B}}} \]</div>
+    <p>The difference now is that particles can cross the boundary, so the \(\mu\) term in the thermodynamic identity stays (the \(P\,dV\) term is still negligible):</p>
+    <div class="eq">\[ dS_R = \frac{1}{T}\left(dU_R + P\,dV_R - \mu\,dN_R\right) \]</div>
+    <p>With \(dU_R = -dE\) and \(dN_R = -dN\), each state gets a weight called the Gibbs factor, and normalizing gives the grand partition function, or Gibbs sum:</p>
+    <div class="eq"><span class="boxed">\( \displaystyle P(s) = \frac{1}{\mathcal{Z}}\, e^{-[E(s) - \mu N(s)]/k_{\mathrm{B}}T} \)</span></div>
+    <div class="eq">\[ \mathcal{Z} = \sum_s e^{-[E(s) - \mu N(s)]/k_{\mathrm{B}}T} \]</div>
+    <p>The sum runs over every state of the system, including every possible value of \(N\). With several particle species, \(\mu N\) becomes \(\mu_A N_A + \mu_B N_B + \cdots\), which is exactly what we need for blood.</p>
   </div>
 </section>
 
 <!-- ============ HEME ============ -->
 <section id="heme" aria-labelledby="h-heme">
   <h2 id="h-heme">Why carbon monoxide wins</h2>
-  <p class="prose">A single heme site in hemoglobin is a tiny grand canonical system. It can be empty, hold one O<sub>2</sub> (binding energy <i>ε</i>), or hold one CO (binding energy <i>ε′</i>). Near the lungs, <i>μ</i> for oxygen is about −0.6 eV. CO binds more tightly, so even a trace of it in the air steals sites.</p>
+  <p class="prose">A single heme site in hemoglobin is a tiny grand canonical system. It can be empty, hold one O<sub>2</sub> (binding energy \(\varepsilon\)), or hold one CO (binding energy \(\varepsilon'\)). Near the lungs, \(\mu\) for oxygen is about \(-0.6\ \mathrm{eV}\). CO binds more tightly, so even a trace of it in the air steals sites.</p>
 
   <div class="fig">
     <div>
       <div class="states">
         <div class="state">
-          <svg viewBox="0 0 150 70" aria-hidden="true"><rect x="0" y="40" width="150" height="30" fill="var(--band)"/><path d="M0 40 H55 a20 20 0 0 0 40 0 H150" fill="none" stroke="var(--muted)" stroke-width="1.5"/><text x="75" y="64" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">Fe²⁺</text></svg>
+          <svg viewBox="0 0 150 70" aria-hidden="true"><rect x="0" y="40" width="150" height="30" fill="var(--band)"/><path d="M0 40 H57 a18 15 0 0 0 36 0 H150" fill="none" stroke="var(--muted)" stroke-width="1.5"/><text x="75" y="67" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--muted)">Fe<tspan dy="-4" font-size="7">2+</tspan></text></svg>
           <h4>Unoccupied</h4>
           <div class="row"><span>Gibbs factor</span><b id="g0">1</b></div>
           <div class="row"><span>Probability</span><b id="p0">–</b></div>
           <div class="bar"><i id="b0" style="background:var(--empty)"></i></div>
         </div>
         <div class="state">
-          <svg viewBox="0 0 150 70" aria-hidden="true"><rect x="0" y="40" width="150" height="30" fill="var(--band)"/><path d="M0 40 H55 a20 20 0 0 0 40 0 H150" fill="none" stroke="var(--muted)" stroke-width="1.5"/><circle cx="75" cy="36" r="11" fill="var(--o2)"/><circle cx="89" cy="18" r="11" fill="var(--o2)" opacity=".75"/><text x="75" y="40" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">O</text><text x="89" y="22" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">O</text><text x="75" y="64" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">Fe²⁺</text></svg>
-          <h4>Holding O₂</h4>
+          <svg viewBox="0 0 150 70" aria-hidden="true"><rect x="0" y="40" width="150" height="30" fill="var(--band)"/><path d="M0 40 H57 a18 15 0 0 0 36 0 H150" fill="none" stroke="var(--muted)" stroke-width="1.5"/><circle cx="75" cy="36" r="11" fill="var(--o2)"/><circle cx="89" cy="18" r="11" fill="var(--o2)" opacity=".75"/><text x="75" y="40" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">O</text><text x="89" y="22" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">O</text><text x="75" y="67" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--muted)">Fe<tspan dy="-4" font-size="7">2+</tspan></text></svg>
+          <h4>Holding O<sub>2</sub></h4>
           <div class="row"><span>Gibbs factor</span><b id="gO">–</b></div>
           <div class="row"><span>Probability</span><b id="pO">–</b></div>
           <div class="bar"><i id="bO" style="background:var(--o2)"></i></div>
         </div>
         <div class="state">
-          <svg viewBox="0 0 150 70" aria-hidden="true"><rect x="0" y="40" width="150" height="30" fill="var(--band)"/><path d="M0 40 H55 a20 20 0 0 0 40 0 H150" fill="none" stroke="var(--muted)" stroke-width="1.5"/><circle cx="75" cy="36" r="11" fill="var(--co)"/><circle cx="89" cy="18" r="11" fill="var(--co)" opacity=".75"/><text x="75" y="40" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">C</text><text x="89" y="22" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">O</text><text x="75" y="64" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">Fe²⁺</text></svg>
+          <svg viewBox="0 0 150 70" aria-hidden="true"><rect x="0" y="40" width="150" height="30" fill="var(--band)"/><path d="M0 40 H57 a18 15 0 0 0 36 0 H150" fill="none" stroke="var(--muted)" stroke-width="1.5"/><circle cx="75" cy="36" r="11" fill="var(--co)"/><circle cx="89" cy="18" r="11" fill="var(--co)" opacity=".75"/><text x="75" y="40" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">C</text><text x="89" y="22" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">O</text><text x="75" y="67" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--muted)">Fe<tspan dy="-4" font-size="7">2+</tspan></text></svg>
           <h4>Holding CO</h4>
           <div class="row"><span>Gibbs factor</span><b id="gC">–</b></div>
           <div class="row"><span>Probability</span><b id="pC">–</b></div>
@@ -221,10 +230,10 @@ footer p{margin:0 0 .4rem}
         </div>
       </div>
 
-      <div class="eq" id="zEq" style="font-size:1.05rem"></div>
+      <div class="eq" style="font-size:1.05rem">\( \mathcal{Z} = {} \) <span id="zVal"></span></div>
 
       <div class="canvas-holder"><canvas id="stripCanvas" aria-label="One heme site sampled over time, showing which state it is in"></canvas></div>
-      <p class="cap">One site, sampled again and again. Each cell is a snapshot: gray empty, blue O₂, red CO.</p>
+      <p class="cap">One site, sampled again and again. Each cell is a snapshot: gray empty, blue O<sub>2</sub>, red CO.</p>
 
       <div class="readout">
         <div><div class="big" id="sat">–</div><div class="note" style="margin:0">of sites carry oxygen</div></div>
@@ -233,10 +242,10 @@ footer p{margin:0 0 .4rem}
       <div class="table-wrap">
       <table class="scale" aria-label="Oxygen saturation reference ranges shown in the lecture">
         <tbody>
-          <tr data-min="95"><td>95 to 100%</td><td>Normal range</td></tr>
-          <tr data-min="91"><td>91 to 94%</td><td>Mild hypoxemia, worth watching</td></tr>
-          <tr data-min="81"><td>81 to 90%</td><td>Hypoxemia with difficulty breathing</td></tr>
-          <tr data-min="0"><td>80% or below</td><td>Severe hypoxemia</td></tr>
+          <tr><td>95 to 100%</td><td>Normal range</td></tr>
+          <tr><td>91 to 94%</td><td>Mild hypoxemia, worth watching</td></tr>
+          <tr><td>81 to 90%</td><td>Hypoxemia with difficulty breathing</td></tr>
+          <tr><td>80% or below</td><td>Severe hypoxemia</td></tr>
         </tbody>
       </table>
       </div>
@@ -244,98 +253,99 @@ footer p{margin:0 0 .4rem}
 
     <div class="panel">
       <div class="ctl btns">
-        <button type="button" id="presetO2">O₂ only</button>
-        <button type="button" id="presetCO">CO at 1/100 of O₂</button>
+        <button type="button" id="presetO2">O<sub>2</sub> only</button>
+        <button type="button" id="presetCO">CO at 1/100 of O<sub>2</sub></button>
       </div>
       <div class="ctl">
-        <label for="tSlider">Temperature <output id="tOut"></output></label>
+        <label for="tSlider"><span class="lt">Temperature \(T\)</span> <output><span id="tNum"></span> K</output></label>
         <input type="range" id="tSlider" min="250" max="400" step="1" value="310">
+        <small>\(k_{\mathrm{B}}T = {}\)<span id="kTNum"></span> meV</small>
       </div>
       <div class="ctl">
-        <label for="hmuSlider">O₂ chemical potential <output id="hmuOut"></output></label>
+        <label for="hmuSlider"><span class="lt">O<sub>2</sub> chemical potential \(\mu\)</span> <output id="hmuOut"></output></label>
         <input type="range" id="hmuSlider" min="-0.9" max="-0.4" step="0.005" value="-0.6">
         <small>Lower values mean thinner air, as at high altitude or deep in tissue.</small>
       </div>
       <div class="ctl">
-        <label for="epsSlider">O₂ binding energy <i>ε</i> <output id="epsOut"></output></label>
+        <label for="epsSlider"><span class="lt">O<sub>2</sub> binding energy \(\varepsilon\)</span> <output id="epsOut"></output></label>
         <input type="range" id="epsSlider" min="-1" max="-0.4" step="0.005" value="-0.7">
       </div>
       <div class="ctl">
         <label class="check" for="coCheck" style="justify-content:flex-start"><input type="checkbox" id="coCheck"> Carbon monoxide present</label>
       </div>
       <div class="ctl">
-        <label for="ratioSlider">CO is rarer than O₂ by <output id="ratioOut"></output></label>
+        <label for="ratioSlider"><span class="lt">CO is rarer than O<sub>2</sub> by</span> <output id="ratioOut"></output></label>
         <input type="range" id="ratioSlider" min="1" max="5" step="0.05" value="2">
-        <small>Then <i>μ′</i> = <i>μ</i> − <i>k</i><sub>B</sub><i>T</i> ln(ratio) <output id="mucOut"></output></small>
+        <small>Then \(\mu' = \mu - k_{\mathrm{B}}T \ln(\text{ratio}) = {}\)<span id="mucOut"></span> eV</small>
       </div>
       <div class="ctl">
-        <label for="epscSlider">CO binding energy <i>ε′</i> <output id="epscOut"></output></label>
+        <label for="epscSlider"><span class="lt">CO binding energy \(\varepsilon'\)</span> <output id="epscOut"></output></label>
         <input type="range" id="epscSlider" min="-1.1" max="-0.5" step="0.005" value="-0.85">
       </div>
     </div>
   </div>
-  <p class="prose note" style="margin-top:1.5rem">This is the lecture’s one-site model; real hemoglobin has four cooperating sites. Also, an ordinary two-wavelength pulse oximeter (like a smartwatch) cannot tell CO-bound hemoglobin from O₂-bound hemoglobin, so it would still read near normal during CO poisoning. That is part of what makes CO so dangerous.</p>
+  <p class="prose note" style="margin-top:1.5rem">This is the lecture’s one-site model; real hemoglobin has four cooperating sites. Also, an ordinary two-wavelength pulse oximeter (like a smartwatch) cannot tell CO-bound hemoglobin from O<sub>2</sub>-bound hemoglobin, so it would still read near normal during CO poisoning. That is part of what makes CO so dangerous.</p>
 </section>
 
 <!-- ============ FLUCTUATIONS ============ -->
 <section id="fluct" aria-labelledby="h-fluct">
   <h2 id="h-fluct">How big are the fluctuations?</h2>
   <div class="prose">
-    <p>Problem 7.6. Differentiating the Gibbs sum with respect to <i>μ</i> pulls down a factor of <i>βN</i>(<i>s</i>) each time, so with <i>β</i> = 1/<i>k</i><sub>B</sub><i>T</i>:</p>
-    <div class="eq"><i>N̄</i> = <span class="frac"><span><i>k</i><sub>B</sub><i>T</i></span><span>𝒵</span></span><span class="frac"><span>∂𝒵</span><span>∂<i>μ</i></span></span>,&emsp; <span style="text-decoration:overline"><i>N</i><sup>2</sup></span> = <span class="frac"><span>(<i>k</i><sub>B</sub><i>T</i>)<sup>2</sup></span><span>𝒵</span></span><span class="frac"><span>∂<sup>2</sup>𝒵</span><span>∂<i>μ</i><sup>2</sup></span></span></div>
-    <p>Subtracting <i>N̄</i><sup>2</sup> and comparing with ∂<i>N̄</i>/∂<i>μ</i> gives a compact result:</p>
-    <div class="eq"><span class="boxed"><i>σ<sub>N</sub></i> = √<span style="text-decoration:overline"><i>k</i><sub>B</sub><i>T</i> (∂<i>N̄</i>/∂<i>μ</i>)</span></span></div>
-    <p>For an ideal gas, <i>μ</i> = −<i>k</i><sub>B</sub><i>T</i> ln(<i>VZ</i><sub>int</sub>/<i>Nv<sub>Q</sub></i>), so ∂<i>μ</i>/∂<i>N</i> = <i>k</i><sub>B</sub><i>T</i>/<i>N</i> and therefore <i>σ<sub>N</sub></i> = √<i>N̄</i>. The relative spread is 1/√<i>N̄</i>: large for a handful of particles, utterly invisible for a macroscopic sample.</p>
+    <p>Problem 7.6. Differentiating the Gibbs sum with respect to \(\mu\) pulls down a factor of \(\beta N(s)\) each time, so with \(\beta = 1/k_{\mathrm{B}}T\):</p>
+    <div class="eq">\[ \bar{N} = \frac{k_{\mathrm{B}}T}{\mathcal{Z}}\,\frac{\partial \mathcal{Z}}{\partial \mu}, \qquad \overline{N^2} = \frac{(k_{\mathrm{B}}T)^2}{\mathcal{Z}}\,\frac{\partial^2 \mathcal{Z}}{\partial \mu^2} \]</div>
+    <p>Subtracting \(\bar{N}^2\) and comparing with \(\partial\bar{N}/\partial\mu\) gives a compact result:</p>
+    <div class="eq"><span class="boxed">\( \displaystyle \sigma_N = \sqrt{\overline{N^2} - \bar{N}^2} = \sqrt{k_{\mathrm{B}}T \,\frac{\partial \bar{N}}{\partial \mu}} \)</span></div>
+    <p>For an ideal gas, \(\mu = -k_{\mathrm{B}}T \ln\!\left(V Z_{\text{int}} / N v_Q\right)\), so \(\partial\mu/\partial N = k_{\mathrm{B}}T/N\) and therefore \(\sigma_N = \sqrt{\bar{N}}\). The relative spread is \(\sigma_N/\bar{N} = 1/\sqrt{\bar{N}}\): large for a handful of particles, utterly invisible for a macroscopic sample.</p>
   </div>
 
   <div class="fig">
     <div>
       <div class="canvas-holder"><canvas id="bellCanvas" aria-label="Distribution of N plotted from 0 to twice the mean"></canvas></div>
-      <p class="cap">Distribution of <i>N</i>, drawn from 0 to 2<i>N̄</i> so the relative width is what you see.</p>
+      <p class="cap">Distribution of \(N\), drawn from \(0\) to \(2\bar{N}\) so the relative width is what you see.</p>
     </div>
     <div class="panel">
       <div class="ctl">
-        <label for="nSlider">Mean particle number <output id="nOut"></output></label>
+        <label for="nSlider"><span class="lt">Mean particle number \(\bar{N}\)</span> <output id="nOut"></output></label>
         <input type="range" id="nSlider" min="0" max="24" step="0.1" value="1">
       </div>
       <dl class="stats">
-        <dt><i>σ<sub>N</sub></i> = √<i>N̄</i></dt><dd id="fSig">–</dd>
-        <dt><i>σ<sub>N</sub></i>/<i>N̄</i></dt><dd id="fRel">–</dd>
+        <dt>\(\sigma_N = \sqrt{\bar{N}}\)</dt><dd id="fSig">–</dd>
+        <dt>\(\sigma_N/\bar{N}\)</dt><dd id="fRel">–</dd>
       </dl>
     </div>
   </div>
 
   <h3>It works beyond the ideal gas, too</h3>
-  <p class="prose">The heme site above holds either 0 or 1 molecule. With only O₂ around, <i>N̄</i> = <i>p</i>, and directly from the Gibbs sum the variance is <i>p</i> − <i>p</i><sup>2</sup>. The general formula agrees: <span id="checkLine">–</span></p>
+  <p class="prose">The heme site above holds either 0 or 1 molecule. With only O<sub>2</sub> around, \(\bar{N} = p\), and directly from the Gibbs sum the variance is \(\sigma_N^2 = p - p^2\). The general formula agrees: at the current settings (O<sub>2</sub> only), \(\bar{N} = {}\)<span id="c1">–</span>, \(p - p^2 = {}\)<span id="c2">–</span>, and \(k_{\mathrm{B}}T\,\partial\bar{N}/\partial\mu = {}\)<span id="c3">–</span>.</p>
 </section>
 
 <!-- ============ GRAND FREE ENERGY ============ -->
 <section id="phi" aria-labelledby="h-phi">
   <h2 id="h-phi">The grand free energy</h2>
   <div class="prose">
-    <p>Problem 7.7. The grand free energy Φ ≡ <i>U</i> − <i>TS</i> − <i>μN</i> satisfies <i>d</i>Φ = −<i>P dV</i> − <i>S dT</i> − <i>N dμ</i>, so <i>N</i> = −(∂Φ/∂<i>μ</i>)<sub><i>T,V</i></sub>. The candidate −<i>k</i><sub>B</sub><i>T</i> ln 𝒵 obeys the same equation, since its <i>μ</i>-derivative is −<i>N̄</i>. At <i>μ</i> = 0 the Gibbs sum reduces to the ordinary partition function, where −<i>k</i><sub>B</sub><i>T</i> ln <i>Z</i> = <i>F</i> = Φ. Same differential equation, same starting point:</p>
-    <div class="eq"><span class="boxed">Φ = −<i>k</i><sub>B</sub><i>T</i> ln 𝒵</span></div>
-    <p>Below, Φ(<i>μ</i>) is plotted for the O₂-only heme site, using the temperature and binding energy set in the hemoglobin section. Slide <i>μ</i> and compare the slope of the tangent with the occupancy computed from the Gibbs sum.</p>
+    <p>Problem 7.7. The grand free energy \(\Phi \equiv U - TS - \mu N\) satisfies \(d\Phi = -P\,dV - S\,dT - N\,d\mu\), so \(N = -(\partial\Phi/\partial\mu)_{T,V}\). The candidate \(\tilde{\Phi} = -k_{\mathrm{B}}T\ln\mathcal{Z}\) obeys the same equation, since \((\partial\tilde{\Phi}/\partial\mu)_{T,V} = -\bar{N}\). At \(\mu = 0\) the Gibbs sum reduces to the ordinary partition function \(Z\), where \(-k_{\mathrm{B}}T\ln Z = F = \Phi\). Same differential equation, same starting point:</p>
+    <div class="eq"><span class="boxed">\( \displaystyle \Phi = -k_{\mathrm{B}}T \ln \mathcal{Z} \)</span></div>
+    <p>Below, \(\Phi(\mu)\) is plotted for the O<sub>2</sub>-only heme site, using the temperature and binding energy set in the hemoglobin section. Slide \(\mu\) and compare the slope of the tangent with the occupancy computed from the Gibbs sum.</p>
   </div>
 
   <div class="ctl" style="max-width:32rem;margin-top:1.25rem">
-    <label for="pmuSlider">Chemical potential <i>μ</i> <output id="pmuOut"></output></label>
+    <label for="pmuSlider"><span class="lt">Chemical potential \(\mu\)</span> <output id="pmuOut"></output></label>
     <input type="range" id="pmuSlider" min="-1.1" max="-0.3" step="0.005" value="-0.6">
   </div>
   <div class="two">
     <div>
       <div class="canvas-holder"><canvas id="phiCanvas" aria-label="Grand free energy as a function of chemical potential, with tangent line"></canvas></div>
-      <p class="cap">Φ = −<i>k</i><sub>B</sub><i>T</i> ln(1 + e<sup>−(<i>ε</i>−<i>μ</i>)/<i>k</i><sub>B</sub><i>T</i></sup>), in eV, with the tangent at the chosen <i>μ</i>.</p>
+      <p class="cap">\(\Phi = -k_{\mathrm{B}}T\ln\!\left(1 + e^{-(\varepsilon-\mu)/k_{\mathrm{B}}T}\right)\), in eV, with the tangent at the chosen \(\mu\).</p>
     </div>
     <div>
       <div class="canvas-holder"><canvas id="nbarCanvas" aria-label="Average occupancy as a function of chemical potential"></canvas></div>
-      <p class="cap">Occupancy <i>N̄</i> from the Gibbs sum. It switches on as <i>μ</i> passes <i>ε</i>.</p>
+      <p class="cap">Occupancy \(\bar{N}\) from the Gibbs sum. It switches on as \(\mu\) passes \(\varepsilon\).</p>
     </div>
   </div>
   <dl class="stats" style="max-width:32rem;margin-top:1rem">
-    <dt>Φ at this <i>μ</i></dt><dd id="phiVal">–</dd>
-    <dt>−(slope of Φ)</dt><dd id="slopeVal">–</dd>
-    <dt><i>N̄</i> from the Gibbs sum</dt><dd id="nbarVal">–</dd>
+    <dt>\(\Phi\) at this \(\mu\)</dt><dd id="phiVal">–</dd>
+    <dt>\(-\partial\Phi/\partial\mu\) (tangent slope)</dt><dd id="slopeVal">–</dd>
+    <dt>\(\bar{N}\) from the Gibbs sum</dt><dd id="nbarVal">–</dd>
   </dl>
 </section>
 </div>
@@ -343,7 +353,7 @@ footer p{margin:0 0 .4rem}
 <footer>
   <div class="wrap">
     <p>Created by Claude Opus 5.5, based on the lecture notes by Sang Hoon Lee on quantum statistics (Section 7.1, the Gibbs factor, with Problems 7.6 and 7.7).</p>
-    <p>Physical constants: <i>k</i><sub>B</sub> = 8.617 × 10<sup>−5</sup> eV/K. Numbers in the hemoglobin model are the illustrative values from the lecture.</p>
+    <p>Physical constants: \(k_{\mathrm{B}} = 8.617 \times 10^{-5}\ \mathrm{eV/K}\). Numbers in the hemoglobin model are the illustrative values from the lecture. Equations typeset with MathJax.</p>
   </div>
 </footer>
 
@@ -375,6 +385,30 @@ function fit(cv, LW, LH){
 const SANS = '"Instrument Sans", system-ui, sans-serif';
 const SERIF = '"Newsreader", Georgia, serif';
 
+// Draws "prefix" + italic N with a proper overbar (N-bar) on a canvas.
+function drawBarN(c, x, y, size, prefix, align){
+  prefix = prefix || '';
+  c.save(); c.textAlign = 'left';
+  c.font = size + 'px ' + SERIF; const pw = c.measureText(prefix).width;
+  c.font = 'italic ' + size + 'px ' + SERIF; const nw = c.measureText('N').width;
+  const tw = pw + nw;
+  const x0 = align === 'center' ? x - tw/2 : align === 'right' ? x - tw : x;
+  c.font = size + 'px ' + SERIF; c.fillText(prefix, x0, y);
+  c.font = 'italic ' + size + 'px ' + SERIF; c.fillText('N', x0 + pw, y);
+  c.strokeStyle = c.fillStyle; c.lineWidth = Math.max(1, size/13);
+  const by = y - size*0.78, slant = size*0.12;
+  c.beginPath(); c.moveTo(x0 + pw + nw*0.18 + slant, by); c.lineTo(x0 + pw + nw*0.98 + slant, by); c.stroke();
+  c.restore();
+}
+// Draws italic symbol with a roman subscript or a plain label after it.
+function drawSym(c, x, y, size, sym, rest){
+  c.save(); c.textAlign='left';
+  const upright = /^[\u0391-\u03A9]$/.test(sym); // capital Greek is upright, as in TeX
+  c.font = (upright ? '' : 'italic ') + size + 'px ' + SERIF; c.fillText(sym, x, y);
+  const w = c.measureText(sym).width;
+  c.font = size*0.92 + 'px ' + SANS; c.fillText(rest || '', x + w + 2, y);
+  c.restore();
+}
 function fmt(x, sig){
   sig = sig || 3;
   if (!isFinite(x)) return '–';
@@ -384,6 +418,7 @@ function fmt(x, sig){
   const m = x / Math.pow(10, e);
   return m.toFixed(Math.max(0, sig-1)) + ' × 10<sup>' + e + '</sup>';
 }
+function signed(x,d){ return (x<0?'−':'') + Math.abs(x).toFixed(d); }
 function pct(x){ return (x*100 >= 99.95 ? (x*100).toFixed(2) : (x*100).toFixed(1)) + '%'; }
 function gauss(){ let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
 function poisson(m, k){ // pmf via logs
@@ -440,11 +475,16 @@ function drawSim(){
   }
   c.fillStyle = C.ink; c.font = '500 20px '+SERIF;
   c.fillText('Reservoir', 22, 36);
-  c.font = 'italic 17px '+SERIF; c.fillStyle = C.muted;
-  c.fillText('T, μ fixed', 22, 60);
+  c.fillStyle = C.muted;
+  c.font='italic 18px '+SERIF; c.fillText('T', 22, 60); let lx = 22 + c.measureText('T').width;
+  c.font='18px '+SERIF; c.fillText(',', lx, 60); lx += c.measureText(', ').width;
+  c.font='italic 18px '+SERIF; c.fillText('μ', lx, 60); lx += c.measureText('μ').width;
+  c.font='16px '+SANS; c.fillText(' fixed', lx + 2, 60);
   c.fillStyle = C.o2; c.font = '600 15px '+SANS;
   const ly = w.y > 30 ? w.y - 10 : w.y + w.a + 20;
-  c.fillText('System   N = ' + S.nowN, w.x, ly);
+  c.fillText('System', w.x, ly);
+  const sw = c.measureText('System').width;
+  drawSym(c, w.x + sw + 14, ly, 17, 'N', '= ' + S.nowN);
 }
 function drawHist(){
   const c = histCtx, W=900, H=240, L=46, R=16, T=18, B=34;
@@ -468,7 +508,7 @@ function drawHist(){
   c.fillStyle = C.muted; c.font = '13px '+SANS; c.textAlign='center';
   const stepL = Math.max(1, Math.ceil(kmax/12));
   for (let k=0;k<=kmax;k+=stepL) c.fillText(k, X(k)+bw/2, H-B+18);
-  c.textAlign='left'; c.font='italic 15px '+SERIF; c.fillText('N', W-R-14, H-B+18+12);
+  c.textAlign='left'; drawSym(c, W-R-14, H-B+30, 15, 'N', '');
   c.save(); c.translate(16, (H-B+T)/2); c.rotate(-Math.PI/2); c.textAlign='center'; c.font='13px '+SANS; c.fillText('probability', 0, 0); c.restore();
   c.textAlign='left';
 }
@@ -487,7 +527,7 @@ function simControls(){
   S.mu = +$('muSlider').value;
   S.frac = fracFrom(+$('sizeSlider').value);
   S.speed = +$('speedSlider').value;
-  $('muOut').innerHTML = (S.mu>=0?'+':'−') + Math.abs(S.mu).toFixed(2) + ' <i>k</i><sub>B</sub><i>T</i>';
+  $('muNum').textContent = (S.mu>=0?'+':'−') + Math.abs(S.mu).toFixed(2);
   $('sizeOut').textContent = (S.frac*100).toFixed(1) + '%';
   $('speedOut').textContent = S.speed.toFixed(2) + '×';
 }
@@ -513,25 +553,22 @@ function hemeCompute(){
 function hemeRender(){
   hemeCompute();
   const h = heme;
-  $('tOut').innerHTML = Hm.T + ' K (<i>k</i><sub>B</sub><i>T</i> = ' + (h.kT*1000).toFixed(1) + ' meV)';
-  $('hmuOut').textContent = Hm.mu.toFixed(3) + ' eV';
-  $('epsOut').textContent = Hm.eps.toFixed(3) + ' eV';
-  $('epscOut').textContent = Hm.epsc.toFixed(3) + ' eV';
+  $('tNum').textContent = Hm.T; $('kTNum').textContent = (h.kT*1000).toFixed(1);
+  $('hmuOut').textContent = signed(Hm.mu,3) + ' eV';
+  $('epsOut').textContent = signed(Hm.eps,3) + ' eV';
+  $('epscOut').textContent = signed(Hm.epsc,3) + ' eV';
   $('ratioOut').textContent = Math.round(Math.pow(10,Hm.r)).toLocaleString('en-US') + '×';
-  $('mucOut').textContent = '= ' + h.muc.toFixed(3) + ' eV';
+  $('mucOut').textContent = signed(h.muc,3);
   ['ratioSlider','epscSlider'].forEach(id => $(id).disabled = !Hm.co);
   $('coCheck').checked = Hm.co;
   $('gO').innerHTML = fmt(h.gO,3); $('gC').innerHTML = Hm.co ? fmt(h.gC,3) : '0';
   $('p0').textContent = pct(h.p0); $('pO').textContent = pct(h.pO); $('pC').textContent = pct(h.pC);
   $('b0').style.width = (h.p0*100)+'%'; $('bO').style.width = (h.pO*100)+'%'; $('bC').style.width = (h.pC*100)+'%';
-  $('zEq').innerHTML = '𝒵 = 1 + ' + fmt(h.gO,3) + (Hm.co ? ' + ' + fmt(h.gC,3) : '') + ' = ' + fmt(h.Z,4);
+  $('zVal').innerHTML = '1 + ' + fmt(h.gO,3) + (Hm.co ? ' + ' + fmt(h.gC,3) : '') + ' = ' + fmt(h.Z,4);
   const s = h.pO*100;
   $('sat').textContent = pct(h.pO);
-  let band = 0;
-  document.querySelectorAll('.scale tr').forEach(tr => {
-    const mn = +tr.dataset.min; tr.classList.remove('on');
-  });
   const rows = [...document.querySelectorAll('.scale tr')];
+  rows.forEach(r => r.classList.remove('on'));
   const idx = s >= 95 ? 0 : s >= 91 ? 1 : s >= 81 ? 2 : 3;
   rows[idx].classList.add('on');
   const msgs = ['Healthy. Oxygen fills nearly every site.', 'Slightly low.', 'Low enough to cause breathing trouble.', Hm.co && h.pC > h.pO ? 'Dangerous: CO holds more sites than oxygen does.' : 'Dangerously low.'];
@@ -541,7 +578,7 @@ function hemeRender(){
   const dmu = 1e-5, kT = h.kT;
   const pp = g => { const gg = Math.exp(-(Hm.eps - g)/kT); return gg/(1+gg); };
   const deriv = kT*(pp(Hm.mu+dmu) - pp(Hm.mu-dmu))/(2*dmu);
-  $('checkLine').innerHTML = 'at the current settings (O₂ only), <i>N̄</i> = ' + p.toFixed(4) + ', <i>p</i> − <i>p</i><sup>2</sup> = ' + (p-p*p).toFixed(5) + ', and <i>k</i><sub>B</sub><i>T</i> ∂<i>N̄</i>/∂<i>μ</i> = ' + deriv.toFixed(5) + '.';
+  $('c1').textContent = p.toFixed(4); $('c2').textContent = (p-p*p).toFixed(5); $('c3').textContent = deriv.toFixed(5);
   if (!stripTimerRunning) { fillStripStatic(); drawStrip(); }
   phiRender();
 }
@@ -576,10 +613,10 @@ function fluctRender(){
   c.clearRect(0,0,W,H); c.fillStyle=C.surface; c.fillRect(0,0,W,H);
   const X = x => L + x/(2*N)*(W-L-R);
   c.strokeStyle=C.rule; c.lineWidth=1; c.beginPath(); c.moveTo(L,H-B); c.lineTo(W-R,H-B); c.stroke();
-  c.fillStyle = C.muted; c.font='14px '+SANS; c.textAlign='center';
-  c.fillText('0', X(0), H-B+20); c.fillText('2N̄', X(2*N), H-B+20);
-  c.font='italic 15px '+SERIF; c.fillText('N̄', X(N), H-B+20);
-  c.textAlign='left';
+  c.fillStyle = C.muted; c.font='15px '+SERIF; c.textAlign='center';
+  c.fillText('0', X(0), H-B+22); c.textAlign='left';
+  drawBarN(c, X(N), H-B+22, 16, '', 'center');
+  drawBarN(c, X(2*N), H-B+22, 16, '2', 'center');
   const top = T+6, base = H-B;
   if (N <= 60){
     const kmax = Math.floor(2*N); let pm = 0; const ps=[];
@@ -615,22 +652,22 @@ function axes(c, W, H, box, xr, yr, xlab, ylab, yticks){
   c.strokeStyle=C.rule; c.lineWidth=1;
   c.beginPath(); c.moveTo(L,T); c.lineTo(L,H-B); c.lineTo(W-R,H-B); c.stroke();
   c.fillStyle=C.muted; c.font='12px '+SANS; c.textAlign='center';
-  for (let v=-1.0; v<=-0.29; v+=0.2){ c.fillText(v.toFixed(1), X(v), H-B+16); }
+  for (let v=-1.0; v<=-0.29; v+=0.2){ c.fillText(signed(v,1), X(v), H-B+16); }
   c.textAlign='right';
-  yticks.forEach(v => { c.fillText(v, L-6, Y(v)+4); c.strokeStyle=C.band; c.beginPath(); c.moveTo(L+1,Y(v)); c.lineTo(W-R,Y(v)); c.stroke(); });
-  c.textAlign='center'; c.font='13px '+SANS; c.fillText(xlab, (L+W-R)/2, H-6);
-  c.textAlign='left'; c.font='italic 14px '+SERIF; c.fillText(ylab, L+6, T+4);
+  yticks.forEach(v => { c.fillText(v<0?signed(v,1):String(v), L-6, Y(v)+4); c.strokeStyle=C.band; c.beginPath(); c.moveTo(L+1,Y(v)); c.lineTo(W-R,Y(v)); c.stroke(); });
+  c.fillStyle=C.muted; drawSym(c, (L+W-R)/2 - 22, H-6, 15, xlab[0], xlab[1]);
+  if (ylab === 'Nbar') drawBarN(c, L+8, T+10, 16, '', 'left'); else drawSym(c, L+8, T+8, 15, ylab[0], ylab[1]);
   return {X,Y};
 }
 function phiRender(){
   if (!phiCtx) return;
   const mu = +$('pmuSlider').value;
-  $('pmuOut').textContent = mu.toFixed(3) + ' eV';
+  $('pmuOut').textContent = signed(mu,3) + ' eV';
   const W=440, H=300, box=[48,18,14,40];
   // Phi panel
   let c = phiCtx;
   const ymin = Math.min(-0.85, Phi(MU1)-0.03);
-  let ax = axes(c, W, H, box, [MU0,MU1], [ymin, 0.05], 'μ (eV)', 'Φ (eV)', [0,-0.2,-0.4,-0.6,-0.8].filter(v=>v>=ymin));
+  let ax = axes(c, W, H, box, [MU0,MU1], [ymin, 0.05], ['μ',' (eV)'], ['Φ',' (eV)'], [0,-0.2,-0.4,-0.6,-0.8].filter(v=>v>=ymin));
   c.save(); c.beginPath(); c.rect(box[0],box[1],W-box[0]-box[2],H-box[1]-box[3]); c.clip();
   // eps marker
   c.strokeStyle=C.rule; c.setLineDash([3,4]); c.beginPath(); c.moveTo(ax.X(Hm.eps),box[1]); c.lineTo(ax.X(Hm.eps),H-box[3]); c.stroke(); c.setLineDash([]);
@@ -642,17 +679,17 @@ function phiRender(){
   c.moveTo(ax.X(MU0), ax.Y(p0+slope*(MU0-mu))); c.lineTo(ax.X(MU1), ax.Y(p0+slope*(MU1-mu))); c.stroke();
   c.fillStyle=C.co; c.beginPath(); c.arc(ax.X(mu),ax.Y(p0),5,0,7); c.fill();
   c.restore();
-  c.fillStyle=C.muted; c.font='italic 13px '+SERIF; c.fillText('ε', ax.X(Hm.eps)+4, H-box[3]-6);
+  c.fillStyle=C.muted; drawSym(c, ax.X(Hm.eps)+4, H-box[3]-6, 14, 'ε', '');
   // N panel
   c = nbarCtx;
-  ax = axes(c, W, H, box, [MU0,MU1], [0,1.08], 'μ (eV)', 'N̄', [0,0.5,1]);
+  ax = axes(c, W, H, box, [MU0,MU1], [0,1.08], ['μ',' (eV)'], 'Nbar', [0,0.5,1]);
   c.strokeStyle=C.rule; c.setLineDash([3,4]); c.beginPath(); c.moveTo(ax.X(Hm.eps),box[1]); c.lineTo(ax.X(Hm.eps),H-box[3]); c.stroke(); c.setLineDash([]);
   c.strokeStyle=C.o2; c.lineWidth=2.5; c.beginPath();
   for (let i=0;i<=300;i++){ const m=MU0+(MU1-MU0)*i/300; const x=ax.X(m), y=ax.Y(Nbar(m)); i?c.lineTo(x,y):c.moveTo(x,y); }
   c.stroke();
   c.fillStyle=C.co; c.beginPath(); c.arc(ax.X(mu),ax.Y(Nbar(mu)),5,0,7); c.fill();
-  c.fillStyle=C.muted; c.font='italic 13px '+SERIF; c.fillText('ε', ax.X(Hm.eps)+4, H-box[3]-6);
-  $('phiVal').textContent = p0.toFixed(4) + ' eV';
+  c.fillStyle=C.muted; drawSym(c, ax.X(Hm.eps)+4, H-box[3]-6, 14, 'ε', '');
+  $('phiVal').textContent = signed(p0,4) + ' eV';
   $('slopeVal').textContent = (-slope).toFixed(4);
   $('nbarVal').textContent = Nbar(mu).toFixed(4);
 }
