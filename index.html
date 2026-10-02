@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Grand Canonical Ensemble, Interactively</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,650;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#EDF1F4; --surface:#F8FAFC; --ink:#15202B; --muted:#56636F; --rule:#C5CFD7;
+  --o2:#2B67D1; --co:#B0243A; --res:#8B98A4; --empty:#BFC9D1; --band:#E2E8ED;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E151C; --surface:#141D26; --ink:#E3E9EE; --muted:#97A4B0; --rule:#2B3743;
+    --o2:#6E9FF2; --co:#EA6A7D; --res:#5B6976; --empty:#34424F; --band:#1B2631;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E151C; --surface:#141D26; --ink:#E3E9EE; --muted:#97A4B0; --rule:#2B3743;
+  --o2:#6E9FF2; --co:#EA6A7D; --res:#5B6976; --empty:#34424F; --band:#1B2631;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:1.1rem;line-height:1.62;-webkit-font-smoothing:antialiased}
+img,canvas{max-width:100%}
+a{color:var(--o2)}
+:focus-visible{outline:2px solid var(--o2);outline-offset:3px;border-radius:2px}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem)}
+.prose{max-width:40rem}
+
+header.hero{padding:clamp(2.5rem,7vw,5rem) 0 1.5rem}
+.credit{font-family:var(--sans);font-size:.9rem;color:var(--muted);margin:0 0 1.25rem}
+h1{font-weight:500;font-size:clamp(2.5rem,7.5vw,5.25rem);line-height:.98;letter-spacing:-.025em;margin:0 0 1.25rem;max-width:12ch}
+h1 .mu{font-style:italic;font-weight:400}
+.lede{font-size:clamp(1.15rem,2.2vw,1.35rem);max-width:36rem;margin:0;color:var(--ink)}
+
+section{padding:clamp(2.5rem,6vw,4rem) 0;border-top:1px solid var(--rule)}
+section:first-of-type{border-top:0;padding-top:1rem}
+h2{font-weight:500;font-size:clamp(1.7rem,3.5vw,2.35rem);line-height:1.1;letter-spacing:-.015em;margin:0 0 1rem}
+h3{font-family:var(--sans);font-weight:600;font-size:1rem;margin:1.75rem 0 .5rem}
+p{margin:0 0 1rem}
+.note{font-size:.95rem;color:var(--muted)}
+
+/* math */
+.eq{display:block;text-align:center;margin:1.25rem 0;font-size:1.2rem;overflow-x:auto;padding:.25rem 0}
+.m{font-style:italic}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 .15em}
+.frac>span:first-child{border-bottom:1px solid currentColor;padding:0 .2em}
+.frac>span:last-child{padding:0 .2em}
+sup,sub{font-size:.68em;line-height:0}
+.boxed{display:inline-block;border:1.5px solid var(--o2);padding:.35rem .9rem;border-radius:3px}
+
+/* layout of interactive figures */
+.fig{display:grid;grid-template-columns:minmax(0,1fr) 17rem;gap:1.5rem;align-items:start;margin-top:1.5rem}
+@media (max-width:820px){.fig{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:1rem}
+.canvas-holder{background:var(--surface);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+canvas{display:block;width:100%}
+
+.ctl{font-family:var(--sans);font-size:.9rem;margin-bottom:1.1rem}
+.ctl:last-child{margin-bottom:0}
+.ctl label{display:flex;justify-content:space-between;gap:.5rem;font-weight:500;margin-bottom:.3rem}
+.ctl output{font-variant-numeric:tabular-nums;color:var(--muted);font-weight:400}
+.ctl small{display:block;color:var(--muted);line-height:1.4;margin-top:.25rem}
+input[type=range]{width:100%;accent-color:var(--o2);margin:0}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem}
+button{font-family:var(--sans);font-size:.88rem;font-weight:500;color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:4px;padding:.45rem .8rem;cursor:pointer}
+button:hover{border-color:var(--ink)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.check{display:flex;align-items:center;gap:.5rem;font-weight:500;cursor:pointer}
+.check input{accent-color:var(--co);width:1rem;height:1rem;margin:0}
+
+.stats{font-family:var(--sans);font-size:.9rem;display:grid;grid-template-columns:auto auto;gap:.3rem 1rem;margin:0}
+.stats dt{color:var(--muted)}
+.stats dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
+
+.legend{font-family:var(--sans);font-size:.85rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:1rem;margin:.6rem 0 0}
+.swatch{display:inline-block;width:.75rem;height:.75rem;border-radius:2px;vertical-align:-1px;margin-right:.35rem}
+
+/* heme states */
+.states{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.75rem}
+@media (max-width:560px){.states{grid-template-columns:1fr}}
+.state{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:.9rem;font-family:var(--sans);font-size:.88rem}
+.state svg{display:block;width:100%;height:auto;max-width:150px;margin:0 auto .5rem}
+.state h4{margin:0 0 .35rem;font-size:.95rem;font-weight:600}
+.state .row{display:flex;justify-content:space-between;color:var(--muted);font-variant-numeric:tabular-nums}
+.state .row b{color:var(--ink);font-weight:500}
+.bar{height:.55rem;background:var(--band);border-radius:3px;margin-top:.6rem;overflow:hidden}
+.bar i{display:block;height:100%;width:0;transition:width .25s ease}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+
+.readout{display:flex;flex-wrap:wrap;align-items:baseline;gap:.25rem 1.5rem;margin:1.5rem 0 .5rem}
+.big{font-size:clamp(3rem,9vw,5.5rem);line-height:1;font-weight:500;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.verdict{font-family:var(--sans);font-size:1rem;font-weight:500;max-width:22rem}
+.scale{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:.88rem;margin-top:.75rem}
+.scale td{padding:.4rem .6rem;border-top:1px solid var(--rule)}
+.scale td:first-child{width:7rem;font-variant-numeric:tabular-nums;font-weight:500}
+.scale tr.on td{background:var(--band)}
+.scale tr.on td:first-child{box-shadow:inset 3px 0 0 var(--co)}
+.table-wrap{overflow-x:auto}
+
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin-top:1.25rem}
+@media (max-width:700px){.two{grid-template-columns:1fr}}
+.cap{font-family:var(--sans);font-size:.85rem;color:var(--muted);margin:.5rem .25rem 0}
+
+footer{border-top:1px solid var(--rule);padding:2rem 0 3rem;font-family:var(--sans);font-size:.9rem;color:var(--muted)}
+footer p{margin:0 0 .4rem}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header class="hero">
+  <p class="credit">An interactive demo created by Claude Opus 5.5, based on the lecture notes by Sang Hoon Lee (Chapter 7, Quantum Statistics)</p>
+  <h1>The grand canonical ensemble</h1>
+  <p class="lede">A small system sits against a huge reservoir at fixed temperature <span class="m">T</span> and chemical potential <span class="m">μ</span>. It trades energy and particles freely, so even <span class="m">N</span>, the number of particles inside, keeps changing. Watch it happen below.</p>
+</header>
+
+<!-- ============ SIMULATION ============ -->
+<section id="exchange" aria-labelledby="h-exchange">
+  <h2 id="h-exchange">Particles come and go</h2>
+  <p class="prose">The box is an ideal gas reservoir. The blue-tinted square is our system: an open region with no walls. Particles inside are drawn in blue. Every few frames the demo counts them and adds that count to the histogram, building up the probability distribution of <span class="m">N</span>.</p>
+
+  <div class="fig">
+    <div>
+      <div class="canvas-holder"><canvas id="simCanvas" aria-label="Animation of gas particles moving between a reservoir and an open system region"></canvas></div>
+      <div class="canvas-holder" style="margin-top:.75rem"><canvas id="histCanvas" aria-label="Histogram of the particle number in the system compared with the Poisson prediction"></canvas></div>
+      <div class="legend">
+        <span><span class="swatch" style="background:var(--o2)"></span>Measured frequency of each <i>N</i></span>
+        <span><span class="swatch" style="background:var(--co)"></span>Poisson prediction with the same mean</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="ctl">
+        <label for="muSlider">Chemical potential <output id="muOut"></output></label>
+        <input type="range" id="muSlider" min="-1" max="2.5" step="0.05" value="0.6">
+        <small>Measured from a reference value. Raising <i>μ</i> by <i>k</i><sub>B</sub><i>T</i> multiplies the reservoir density by <i>e</i>, because <i>N̄</i> ∝ e<sup><i>μ</i>/<i>k</i><sub>B</sub><i>T</i></sup> for an ideal gas.</small>
+      </div>
+      <div class="ctl">
+        <label for="sizeSlider">System size <output id="sizeOut"></output></label>
+        <input type="range" id="sizeSlider" min="0" max="1" step="0.01" value="0.45">
+        <small>Share of the box covered by the system.</small>
+      </div>
+      <div class="ctl">
+        <label for="speedSlider">Animation speed <output id="speedOut"></output></label>
+        <input type="range" id="speedSlider" min="0.25" max="3" step="0.05" value="1">
+      </div>
+      <div class="ctl btns">
+        <button id="playBtn" type="button">Pause</button>
+        <button id="clearBtn" type="button">Clear histogram</button>
+      </div>
+      <dl class="stats" aria-live="polite">
+        <dt>Predicted <i>N̄</i></dt><dd id="stPred">–</dd>
+        <dt>Measured <i>N̄</i></dt><dd id="stMean">–</dd>
+        <dt>Measured <i>σ<sub>N</sub></i></dt><dd id="stSig">–</dd>
+        <dt>√<i>N̄</i></dt><dd id="stSqrt">–</dd>
+        <dt>Samples</dt><dd id="stCount">0</dd>
+      </dl>
+    </div>
+  </div>
+  <p class="prose note" style="margin-top:1.25rem">Give it a few seconds: the measured σ<sub><i>N</i></sub> settles onto √<i>N̄</i>, which is exactly the ideal gas result derived in Problem 7.6 further down.</p>
+</section>
+
+<!-- ============ GIBBS FACTOR ============ -->
+<section id="gibbs" aria-labelledby="h-gibbs">
+  <h2 id="h-gibbs">The Gibbs factor</h2>
+  <div class="prose">
+    <p>As in the canonical case, the probability of a system state is proportional to the number of reservoir microstates compatible with it:</p>
+    <div class="eq">
+      <span class="frac"><span><i>P</i>(<i>s</i><sub>2</sub>)</span><span><i>P</i>(<i>s</i><sub>1</sub>)</span></span>
+      =
+      <span class="frac"><span>Ω<sub><i>R</i></sub>(<i>s</i><sub>2</sub>)</span><span>Ω<sub><i>R</i></sub>(<i>s</i><sub>1</sub>)</span></span>
+      = e<sup>[<i>S<sub>R</sub></i>(<i>s</i><sub>2</sub>) − <i>S<sub>R</sub></i>(<i>s</i><sub>1</sub>)]/<i>k</i><sub>B</sub></sup>
+    </div>
+    <p>The difference now is that particles can cross the boundary, so the <i>μ</i> term in the thermodynamic identity stays (the <i>P dV</i> term is still negligible):</p>
+    <div class="eq"><i>dS<sub>R</sub></i> = <span class="frac"><span>1</span><span><i>T</i></span></span>(<i>dU<sub>R</sub></i> + <i>P dV<sub>R</sub></i> − <i>μ dN<sub>R</sub></i>)</div>
+    <p>With <i>dU<sub>R</sub></i> = −<i>dE</i> and <i>dN<sub>R</sub></i> = −<i>dN</i>, each state gets a weight called the Gibbs factor, and normalizing gives the grand partition function, or Gibbs sum:</p>
+    <div class="eq"><span class="boxed"><i>P</i>(<i>s</i>) = <span class="frac"><span>1</span><span>𝒵</span></span> e<sup>−[<i>E</i>(<i>s</i>) − <i>μN</i>(<i>s</i>)]/<i>k</i><sub>B</sub><i>T</i></sup></span></div>
+    <div class="eq">𝒵 = <span style="font-size:1.3em">∑</span><sub><i>s</i></sub> e<sup>−[<i>E</i>(<i>s</i>) − <i>μN</i>(<i>s</i>)]/<i>k</i><sub>B</sub><i>T</i></sup></div>
+    <p>The sum runs over every state of the system, including every possible value of <i>N</i>. With several particle species, <i>μN</i> becomes <i>μ<sub>A</sub>N<sub>A</sub></i> + <i>μ<sub>B</sub>N<sub>B</sub></i> + ⋯, which is exactly what we need for blood.</p>
+  </div>
+</section>
+
+<!-- ============ HEME ============ -->
+<section id="heme" aria-labelledby="h-heme">
+  <h2 id="h-heme">Why carbon monoxide wins</h2>
+  <p class="prose">A single heme site in hemoglobin is a tiny grand canonical system. It can be empty, hold one O<sub>2</sub> (binding energy <i>ε</i>), or hold one CO (binding energy <i>ε′</i>). Near the lungs, <i>μ</i> for oxygen is about −0.6 eV. CO binds more tightly, so even a trace of it in the air steals sites.</p>
+
+  <div class="fig">
+    <div>
+      <div class="states">
+        <div class="state">
+          <svg viewBox="0 0 150 70" aria-hidden="true"><rect x="0" y="40" width="150" height="30" fill="var(--band)"/><path d="M0 40 H55 a20 20 0 0 0 40 0 H150" fill="none" stroke="var(--muted)" stroke-width="1.5"/><text x="75" y="64" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">Fe²⁺</text></svg>
+          <h4>Unoccupied</h4>
+          <div class="row"><span>Gibbs factor</span><b id="g0">1</b></div>
+          <div class="row"><span>Probability</span><b id="p0">–</b></div>
+          <div class="bar"><i id="b0" style="background:var(--empty)"></i></div>
+        </div>
+        <div class="state">
+          <svg viewBox="0 0 150 70" aria-hidden="true"><rect x="0" y="40" width="150" height="30" fill="var(--band)"/><path d="M0 40 H55 a20 20 0 0 0 40 0 H150" fill="none" stroke="var(--muted)" stroke-width="1.5"/><circle cx="75" cy="36" r="11" fill="var(--o2)"/><circle cx="89" cy="18" r="11" fill="var(--o2)" opacity=".75"/><text x="75" y="40" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">O</text><text x="89" y="22" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">O</text><text x="75" y="64" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">Fe²⁺</text></svg>
+          <h4>Holding O₂</h4>
+          <div class="row"><span>Gibbs factor</span><b id="gO">–</b></div>
+          <div class="row"><span>Probability</span><b id="pO">–</b></div>
+          <div class="bar"><i id="bO" style="background:var(--o2)"></i></div>
+        </div>
+        <div class="state">
+          <svg viewBox="0 0 150 70" aria-hidden="true"><rect x="0" y="40" width="150" height="30" fill="var(--band)"/><path d="M0 40 H55 a20 20 0 0 0 40 0 H150" fill="none" stroke="var(--muted)" stroke-width="1.5"/><circle cx="75" cy="36" r="11" fill="var(--co)"/><circle cx="89" cy="18" r="11" fill="var(--co)" opacity=".75"/><text x="75" y="40" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">C</text><text x="89" y="22" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">O</text><text x="75" y="64" text-anchor="middle" font-family="var(--sans)" font-size="11" fill="var(--muted)">Fe²⁺</text></svg>
+          <h4>Holding CO</h4>
+          <div class="row"><span>Gibbs factor</span><b id="gC">–</b></div>
+          <div class="row"><span>Probability</span><b id="pC">–</b></div>
+          <div class="bar"><i id="bC" style="background:var(--co)"></i></div>
+        </div>
+      </div>
+
+      <div class="eq" id="zEq" style="font-size:1.05rem"></div>
+
+      <div class="canvas-holder"><canvas id="stripCanvas" aria-label="One heme site sampled over time, showing which state it is in"></canvas></div>
+      <p class="cap">One site, sampled again and again. Each cell is a snapshot: gray empty, blue O₂, red CO.</p>
+
+      <div class="readout">
+        <div><div class="big" id="sat">–</div><div class="note" style="margin:0">of sites carry oxygen</div></div>
+        <div class="verdict" id="verdict"></div>
+      </div>
+      <div class="table-wrap">
+      <table class="scale" aria-label="Oxygen saturation reference ranges shown in the lecture">
+        <tbody>
+          <tr data-min="95"><td>95 to 100%</td><td>Normal range</td></tr>
+          <tr data-min="91"><td>91 to 94%</td><td>Mild hypoxemia, worth watching</td></tr>
+          <tr data-min="81"><td>81 to 90%</td><td>Hypoxemia with difficulty breathing</td></tr>
+          <tr data-min="0"><td>80% or below</td><td>Severe hypoxemia</td></tr>
+        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ctl btns">
+        <button type="button" id="presetO2">O₂ only</button>
+        <button type="button" id="presetCO">CO at 1/100 of O₂</button>
+      </div>
+      <div class="ctl">
+        <label for="tSlider">Temperature <output id="tOut"></output></label>
+        <input type="range" id="tSlider" min="250" max="400" step="1" value="310">
+      </div>
+      <div class="ctl">
+        <label for="hmuSlider">O₂ chemical potential <output id="hmuOut"></output></label>
+        <input type="range" id="hmuSlider" min="-0.9" max="-0.4" step="0.005" value="-0.6">
+        <small>Lower values mean thinner air, as at high altitude or deep in tissue.</small>
+      </div>
+      <div class="ctl">
+        <label for="epsSlider">O₂ binding energy <i>ε</i> <output id="epsOut"></output></label>
+        <input type="range" id="epsSlider" min="-1" max="-0.4" step="0.005" value="-0.7">
+      </div>
+      <div class="ctl">
+        <label class="check" for="coCheck" style="justify-content:flex-start"><input type="checkbox" id="coCheck"> Carbon monoxide present</label>
+      </div>
+      <div class="ctl">
+        <label for="ratioSlider">CO is rarer than O₂ by <output id="ratioOut"></output></label>
+        <input type="range" id="ratioSlider" min="1" max="5" step="0.05" value="2">
+        <small>Then <i>μ′</i> = <i>μ</i> − <i>k</i><sub>B</sub><i>T</i> ln(ratio) <output id="mucOut"></output></small>
+      </div>
+      <div class="ctl">
+        <label for="epscSlider">CO binding energy <i>ε′</i> <output id="epscOut"></output></label>
+        <input type="range" id="epscSlider" min="-1.1" max="-0.5" step="0.005" value="-0.85">
+      </div>
+    </div>
+  </div>
+  <p class="prose note" style="margin-top:1.5rem">This is the lecture’s one-site model; real hemoglobin has four cooperating sites. Also, an ordinary two-wavelength pulse oximeter (like a smartwatch) cannot tell CO-bound hemoglobin from O₂-bound hemoglobin, so it would still read near normal during CO poisoning. That is part of what makes CO so dangerous.</p>
+</section>
+
+<!-- ============ FLUCTUATIONS ============ -->
+<section id="fluct" aria-labelledby="h-fluct">
+  <h2 id="h-fluct">How big are the fluctuations?</h2>
+  <div class="prose">
+    <p>Problem 7.6. Differentiating the Gibbs sum with respect to <i>μ</i> pulls down a factor of <i>βN</i>(<i>s</i>) each time, so with <i>β</i> = 1/<i>k</i><sub>B</sub><i>T</i>:</p>
+    <div class="eq"><i>N̄</i> = <span class="frac"><span><i>k</i><sub>B</sub><i>T</i></span><span>𝒵</span></span><span class="frac"><span>∂𝒵</span><span>∂<i>μ</i></span></span>,&emsp; <span style="text-decoration:overline"><i>N</i><sup>2</sup></span> = <span class="frac"><span>(<i>k</i><sub>B</sub><i>T</i>)<sup>2</sup></span><span>𝒵</span></span><span class="frac"><span>∂<sup>2</sup>𝒵</span><span>∂<i>μ</i><sup>2</sup></span></span></div>
+    <p>Subtracting <i>N̄</i><sup>2</sup> and comparing with ∂<i>N̄</i>/∂<i>μ</i> gives a compact result:</p>
+    <div class="eq"><span class="boxed"><i>σ<sub>N</sub></i> = √<span style="text-decoration:overline"><i>k</i><sub>B</sub><i>T</i> (∂<i>N̄</i>/∂<i>μ</i>)</span></span></div>
+    <p>For an ideal gas, <i>μ</i> = −<i>k</i><sub>B</sub><i>T</i> ln(<i>VZ</i><sub>int</sub>/<i>Nv<sub>Q</sub></i>), so ∂<i>μ</i>/∂<i>N</i> = <i>k</i><sub>B</sub><i>T</i>/<i>N</i> and therefore <i>σ<sub>N</sub></i> = √<i>N̄</i>. The relative spread is 1/√<i>N̄</i>: large for a handful of particles, utterly invisible for a macroscopic sample.</p>
+  </div>
+
+  <div class="fig">
+    <div>
+      <div class="canvas-holder"><canvas id="bellCanvas" aria-label="Distribution of N plotted from 0 to twice the mean"></canvas></div>
+      <p class="cap">Distribution of <i>N</i>, drawn from 0 to 2<i>N̄</i> so the relative width is what you see.</p>
+    </div>
+    <div class="panel">
+      <div class="ctl">
+        <label for="nSlider">Mean particle number <output id="nOut"></output></label>
+        <input type="range" id="nSlider" min="0" max="24" step="0.1" value="1">
+      </div>
+      <dl class="stats">
+        <dt><i>σ<sub>N</sub></i> = √<i>N̄</i></dt><dd id="fSig">–</dd>
+        <dt><i>σ<sub>N</sub></i>/<i>N̄</i></dt><dd id="fRel">–</dd>
+      </dl>
+    </div>
+  </div>
+
+  <h3>It works beyond the ideal gas, too</h3>
+  <p class="prose">The heme site above holds either 0 or 1 molecule. With only O₂ around, <i>N̄</i> = <i>p</i>, and directly from the Gibbs sum the variance is <i>p</i> − <i>p</i><sup>2</sup>. The general formula agrees: <span id="checkLine">–</span></p>
+</section>
+
+<!-- ============ GRAND FREE ENERGY ============ -->
+<section id="phi" aria-labelledby="h-phi">
+  <h2 id="h-phi">The grand free energy</h2>
+  <div class="prose">
+    <p>Problem 7.7. The grand free energy Φ ≡ <i>U</i> − <i>TS</i> − <i>μN</i> satisfies <i>d</i>Φ = −<i>P dV</i> − <i>S dT</i> − <i>N dμ</i>, so <i>N</i> = −(∂Φ/∂<i>μ</i>)<sub><i>T,V</i></sub>. The candidate −<i>k</i><sub>B</sub><i>T</i> ln 𝒵 obeys the same equation, since its <i>μ</i>-derivative is −<i>N̄</i>. At <i>μ</i> = 0 the Gibbs sum reduces to the ordinary partition function, where −<i>k</i><sub>B</sub><i>T</i> ln <i>Z</i> = <i>F</i> = Φ. Same differential equation, same starting point:</p>
+    <div class="eq"><span class="boxed">Φ = −<i>k</i><sub>B</sub><i>T</i> ln 𝒵</span></div>
+    <p>Below, Φ(<i>μ</i>) is plotted for the O₂-only heme site, using the temperature and binding energy set in the hemoglobin section. Slide <i>μ</i> and compare the slope of the tangent with the occupancy computed from the Gibbs sum.</p>
+  </div>
+
+  <div class="ctl" style="max-width:32rem;margin-top:1.25rem">
+    <label for="pmuSlider">Chemical potential <i>μ</i> <output id="pmuOut"></output></label>
+    <input type="range" id="pmuSlider" min="-1.1" max="-0.3" step="0.005" value="-0.6">
+  </div>
+  <div class="two">
+    <div>
+      <div class="canvas-holder"><canvas id="phiCanvas" aria-label="Grand free energy as a function of chemical potential, with tangent line"></canvas></div>
+      <p class="cap">Φ = −<i>k</i><sub>B</sub><i>T</i> ln(1 + e<sup>−(<i>ε</i>−<i>μ</i>)/<i>k</i><sub>B</sub><i>T</i></sup>), in eV, with the tangent at the chosen <i>μ</i>.</p>
+    </div>
+    <div>
+      <div class="canvas-holder"><canvas id="nbarCanvas" aria-label="Average occupancy as a function of chemical potential"></canvas></div>
+      <p class="cap">Occupancy <i>N̄</i> from the Gibbs sum. It switches on as <i>μ</i> passes <i>ε</i>.</p>
+    </div>
+  </div>
+  <dl class="stats" style="max-width:32rem;margin-top:1rem">
+    <dt>Φ at this <i>μ</i></dt><dd id="phiVal">–</dd>
+    <dt>−(slope of Φ)</dt><dd id="slopeVal">–</dd>
+    <dt><i>N̄</i> from the Gibbs sum</dt><dd id="nbarVal">–</dd>
+  </dl>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>Created by Claude Opus 5.5, based on the lecture notes by Sang Hoon Lee on quantum statistics (Section 7.1, the Gibbs factor, with Problems 7.6 and 7.7).</p>
+    <p>Physical constants: <i>k</i><sub>B</sub> = 8.617 × 10<sup>−5</sup> eV/K. Numbers in the hemoglobin model are the illustrative values from the lecture.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+const $ = id => document.getElementById(id);
+const kB = 8.617333e-5;
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let C = {};
+function readColors(){
+  const cs = getComputedStyle(document.documentElement);
+  ['bg','surface','ink','muted','rule','o2','co','res','empty','band'].forEach(k => C[k] = cs.getPropertyValue('--'+k).trim());
+}
+readColors();
+
+function fit(cv, LW, LH){
+  const w = cv.parentElement.clientWidth || LW;
+  const h = w * LH / LW;
+  cv.style.height = h + 'px';
+  const d = window.devicePixelRatio || 1;
+  cv.width = Math.round(w*d); cv.height = Math.round(h*d);
+  const ctx = cv.getContext('2d');
+  const s = w*d/LW;
+  ctx.setTransform(s,0,0,s,0,0);
+  return ctx;
+}
+const SANS = '"Instrument Sans", system-ui, sans-serif';
+const SERIF = '"Newsreader", Georgia, serif';
+
+function fmt(x, sig){
+  sig = sig || 3;
+  if (!isFinite(x)) return '–';
+  if (x === 0) return '0';
+  const e = Math.floor(Math.log10(Math.abs(x)));
+  if (e >= -3 && e < 6) return Number(x.toPrecision(sig)).toLocaleString('en-US', {maximumSignificantDigits: sig});
+  const m = x / Math.pow(10, e);
+  return m.toFixed(Math.max(0, sig-1)) + ' × 10<sup>' + e + '</sup>';
+}
+function pct(x){ return (x*100 >= 99.95 ? (x*100).toFixed(2) : (x*100).toFixed(1)) + '%'; }
+function gauss(){ let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+function poisson(m, k){ // pmf via logs
+  let lf = 0; for (let i=2;i<=k;i++) lf += Math.log(i);
+  return Math.exp(-m + k*Math.log(m) - lf);
+}
+
+/* ================= SIMULATION ================= */
+const S = {W:900, H:400, mu:0.6, frac:1/16, N0:44, speed:1, parts:[], hist:[], samples:0, sum:0, sum2:0, frame:0, running:!reduceMotion, nowN:0};
+const simCv = $('simCanvas'), histCv = $('histCanvas');
+let simCtx, histCtx;
+
+function fracFrom(v){ const a=Math.log(1/64), b=Math.log(1/5); return Math.exp(a + v*(b-a)); }
+function win(){ const a = Math.sqrt(S.frac*S.W*S.H); return {x:S.W*0.64 - a/2, y:S.H/2 - a/2, a}; }
+function targetTotal(){ return Math.max(1, Math.round(S.N0*Math.exp(S.mu))); }
+function newVel(p){ p.vx = gauss()*70; p.vy = gauss()*70; }
+function addPart(){ const p={x:Math.random()*S.W, y:Math.random()*S.H}; newVel(p); S.parts.push(p); }
+function syncParts(){
+  const t = targetTotal();
+  while (S.parts.length < t) addPart();
+  while (S.parts.length > t) S.parts.splice(Math.floor(Math.random()*S.parts.length), 1);
+}
+function resetHist(){ S.hist=[]; S.samples=0; S.sum=0; S.sum2=0; }
+function countIn(){
+  const w = win(); let n=0;
+  for (const p of S.parts) if (p.x>=w.x && p.x<w.x+w.a && p.y>=w.y && p.y<w.y+w.a) n++;
+  return n;
+}
+function step(dt){
+  dt *= S.speed;
+  for (const p of S.parts){
+    p.x += p.vx*dt; p.y += p.vy*dt;
+    if (p.x<0){p.x=-p.x;p.vx=-p.vx} else if (p.x>S.W){p.x=2*S.W-p.x;p.vx=-p.vx}
+    if (p.y<0){p.y=-p.y;p.vy=-p.vy} else if (p.y>S.H){p.y=2*S.H-p.y;p.vy=-p.vy}
+    if (Math.random() < 0.012*S.speed) newVel(p); // thermalizing kicks from the walls/bath
+  }
+  S.nowN = countIn();
+  S.frame++;
+  if (S.frame % 3 === 0){
+    const n = S.nowN;
+    S.hist[n] = (S.hist[n]||0) + 1; S.samples++; S.sum += n; S.sum2 += n*n;
+  }
+}
+function drawSim(){
+  const c = simCtx, w = win();
+  c.clearRect(0,0,S.W,S.H);
+  c.fillStyle = C.surface; c.fillRect(0,0,S.W,S.H);
+  c.save(); c.globalAlpha = 0.12; c.fillStyle = C.o2; c.fillRect(w.x,w.y,w.a,w.a); c.restore();
+  c.setLineDash([6,5]); c.strokeStyle = C.o2; c.lineWidth = 1.5; c.strokeRect(w.x,w.y,w.a,w.a); c.setLineDash([]);
+  for (const p of S.parts){
+    const inside = p.x>=w.x && p.x<w.x+w.a && p.y>=w.y && p.y<w.y+w.a;
+    c.fillStyle = inside ? C.o2 : C.res;
+    c.beginPath(); c.arc(p.x,p.y, inside?4:3.2, 0, 7); c.fill();
+  }
+  c.fillStyle = C.ink; c.font = '500 20px '+SERIF;
+  c.fillText('Reservoir', 22, 36);
+  c.font = 'italic 17px '+SERIF; c.fillStyle = C.muted;
+  c.fillText('T, μ fixed', 22, 60);
+  c.fillStyle = C.o2; c.font = '600 15px '+SANS;
+  const ly = w.y > 30 ? w.y - 10 : w.y + w.a + 20;
+  c.fillText('System   N = ' + S.nowN, w.x, ly);
+}
+function drawHist(){
+  const c = histCtx, W=900, H=240, L=46, R=16, T=18, B=34;
+  c.clearRect(0,0,W,H); c.fillStyle = C.surface; c.fillRect(0,0,W,H);
+  const m = S.parts.length * S.frac;
+  let kmax = Math.ceil(m + 4.5*Math.sqrt(m) + 3);
+  kmax = Math.max(kmax, S.hist.length);
+  const freqs = []; let fmax = 0;
+  for (let k=0;k<=kmax;k++){ const f = S.samples ? (S.hist[k]||0)/S.samples : 0; freqs.push(f); fmax=Math.max(fmax,f); }
+  const pois = []; for (let k=0;k<=kmax;k++){ const p=poisson(m,k); pois.push(p); fmax=Math.max(fmax,p); }
+  fmax *= 1.12;
+  const bw = (W-L-R)/(kmax+1);
+  const X = k => L + k*bw, Y = f => H-B - f/fmax*(H-B-T);
+  c.strokeStyle = C.rule; c.lineWidth = 1; c.beginPath(); c.moveTo(L,H-B); c.lineTo(W-R,H-B); c.stroke();
+  c.fillStyle = C.o2;
+  for (let k=0;k<=kmax;k++){ if (freqs[k]>0){ const y=Y(freqs[k]); c.fillRect(X(k)+bw*0.12, y, bw*0.76, H-B-y); } }
+  c.strokeStyle = C.co; c.lineWidth = 2; c.beginPath();
+  for (let k=0;k<=kmax;k++){ const x=X(k)+bw/2, y=Y(pois[k]); k?c.lineTo(x,y):c.moveTo(x,y); }
+  c.stroke();
+  c.fillStyle = C.co; for (let k=0;k<=kmax;k++){ c.beginPath(); c.arc(X(k)+bw/2,Y(pois[k]),2.6,0,7); c.fill(); }
+  c.fillStyle = C.muted; c.font = '13px '+SANS; c.textAlign='center';
+  const stepL = Math.max(1, Math.ceil(kmax/12));
+  for (let k=0;k<=kmax;k+=stepL) c.fillText(k, X(k)+bw/2, H-B+18);
+  c.textAlign='left'; c.font='italic 15px '+SERIF; c.fillText('N', W-R-14, H-B+18+12);
+  c.save(); c.translate(16, (H-B+T)/2); c.rotate(-Math.PI/2); c.textAlign='center'; c.font='13px '+SANS; c.fillText('probability', 0, 0); c.restore();
+  c.textAlign='left';
+}
+function updateStats(){
+  const m = S.parts.length * S.frac;
+  $('stPred').innerHTML = fmt(m,3);
+  if (S.samples > 1){
+    const mean = S.sum/S.samples, v = S.sum2/S.samples - mean*mean;
+    $('stMean').innerHTML = mean.toFixed(2);
+    $('stSig').innerHTML = Math.sqrt(Math.max(0,v)).toFixed(2);
+    $('stSqrt').innerHTML = Math.sqrt(mean).toFixed(2);
+  } else { $('stMean').textContent = $('stSig').textContent = $('stSqrt').textContent = '–'; }
+  $('stCount').textContent = S.samples.toLocaleString('en-US');
+}
+function simControls(){
+  S.mu = +$('muSlider').value;
+  S.frac = fracFrom(+$('sizeSlider').value);
+  S.speed = +$('speedSlider').value;
+  $('muOut').innerHTML = (S.mu>=0?'+':'−') + Math.abs(S.mu).toFixed(2) + ' <i>k</i><sub>B</sub><i>T</i>';
+  $('sizeOut').textContent = (S.frac*100).toFixed(1) + '%';
+  $('speedOut').textContent = S.speed.toFixed(2) + '×';
+}
+['muSlider','sizeSlider'].forEach(id => $(id).addEventListener('input', () => { simControls(); syncParts(); S.nowN=countIn(); resetHist(); if(!S.running){drawSim();drawHist();updateStats();} }));
+$('speedSlider').addEventListener('input', simControls);
+$('clearBtn').addEventListener('click', () => { resetHist(); drawHist(); updateStats(); });
+$('playBtn').addEventListener('click', () => { S.running = !S.running; $('playBtn').textContent = S.running ? 'Pause' : 'Play'; if (S.running) last = performance.now(); });
+$('playBtn').textContent = S.running ? 'Pause' : 'Play';
+
+/* ================= HEME ================= */
+const Hm = {T:310, mu:-0.6, eps:-0.7, epsc:-0.85, co:false, r:2};
+const strip = []; const STRIP_N = 90;
+const stripCv = $('stripCanvas'); let stripCtx;
+let heme = {};
+function hemeCompute(){
+  const kT = kB*Hm.T;
+  const gO = Math.exp(-(Hm.eps - Hm.mu)/kT);
+  const muc = Hm.mu - kT*Math.log(Math.pow(10, Hm.r));
+  const gC = Hm.co ? Math.exp(-(Hm.epsc - muc)/kT) : 0;
+  const Z = 1 + gO + gC;
+  heme = {kT, gO, gC, muc, Z, p0:1/Z, pO:gO/Z, pC:gC/Z};
+}
+function hemeRender(){
+  hemeCompute();
+  const h = heme;
+  $('tOut').innerHTML = Hm.T + ' K (<i>k</i><sub>B</sub><i>T</i> = ' + (h.kT*1000).toFixed(1) + ' meV)';
+  $('hmuOut').textContent = Hm.mu.toFixed(3) + ' eV';
+  $('epsOut').textContent = Hm.eps.toFixed(3) + ' eV';
+  $('epscOut').textContent = Hm.epsc.toFixed(3) + ' eV';
+  $('ratioOut').textContent = Math.round(Math.pow(10,Hm.r)).toLocaleString('en-US') + '×';
+  $('mucOut').textContent = '= ' + h.muc.toFixed(3) + ' eV';
+  ['ratioSlider','epscSlider'].forEach(id => $(id).disabled = !Hm.co);
+  $('coCheck').checked = Hm.co;
+  $('gO').innerHTML = fmt(h.gO,3); $('gC').innerHTML = Hm.co ? fmt(h.gC,3) : '0';
+  $('p0').textContent = pct(h.p0); $('pO').textContent = pct(h.pO); $('pC').textContent = pct(h.pC);
+  $('b0').style.width = (h.p0*100)+'%'; $('bO').style.width = (h.pO*100)+'%'; $('bC').style.width = (h.pC*100)+'%';
+  $('zEq').innerHTML = '𝒵 = 1 + ' + fmt(h.gO,3) + (Hm.co ? ' + ' + fmt(h.gC,3) : '') + ' = ' + fmt(h.Z,4);
+  const s = h.pO*100;
+  $('sat').textContent = pct(h.pO);
+  let band = 0;
+  document.querySelectorAll('.scale tr').forEach(tr => {
+    const mn = +tr.dataset.min; tr.classList.remove('on');
+  });
+  const rows = [...document.querySelectorAll('.scale tr')];
+  const idx = s >= 95 ? 0 : s >= 91 ? 1 : s >= 81 ? 2 : 3;
+  rows[idx].classList.add('on');
+  const msgs = ['Healthy. Oxygen fills nearly every site.', 'Slightly low.', 'Low enough to cause breathing trouble.', Hm.co && h.pC > h.pO ? 'Dangerous: CO holds more sites than oxygen does.' : 'Dangerously low.'];
+  $('verdict').textContent = msgs[idx];
+  // fluctuation check line
+  const p = h.gO/(1+h.gO);
+  const dmu = 1e-5, kT = h.kT;
+  const pp = g => { const gg = Math.exp(-(Hm.eps - g)/kT); return gg/(1+gg); };
+  const deriv = kT*(pp(Hm.mu+dmu) - pp(Hm.mu-dmu))/(2*dmu);
+  $('checkLine').innerHTML = 'at the current settings (O₂ only), <i>N̄</i> = ' + p.toFixed(4) + ', <i>p</i> − <i>p</i><sup>2</sup> = ' + (p-p*p).toFixed(5) + ', and <i>k</i><sub>B</sub><i>T</i> ∂<i>N̄</i>/∂<i>μ</i> = ' + deriv.toFixed(5) + '.';
+  if (!stripTimerRunning) { fillStripStatic(); drawStrip(); }
+  phiRender();
+}
+function sampleState(){ const r=Math.random(); return r < heme.p0 ? 0 : r < heme.p0+heme.pO ? 1 : 2; }
+function fillStripStatic(){ strip.length = 0; for (let i=0;i<STRIP_N;i++) strip.push(sampleState()); }
+function drawStrip(){
+  const c = stripCtx, W=900, H=44;
+  c.clearRect(0,0,W,H); c.fillStyle=C.surface; c.fillRect(0,0,W,H);
+  const cw = W/STRIP_N;
+  const cols = [C.empty, C.o2, C.co];
+  for (let i=0;i<strip.length;i++){ c.fillStyle = cols[strip[i]]; c.fillRect(i*cw+1, 8, cw-2, H-16); }
+}
+let stripTimerRunning = !reduceMotion, stripAcc = 0;
+
+function bindH(id, key, conv){ $(id).addEventListener('input', e => { Hm[key] = conv(e.target.value); hemeRender(); }); }
+bindH('tSlider','T',v=>+v); bindH('hmuSlider','mu',v=>+v); bindH('epsSlider','eps',v=>+v);
+bindH('epscSlider','epsc',v=>+v); bindH('ratioSlider','r',v=>+v);
+$('coCheck').addEventListener('change', e => { Hm.co = e.target.checked; hemeRender(); });
+function setH(o){ Object.assign(Hm,o); $('tSlider').value=Hm.T; $('hmuSlider').value=Hm.mu; $('epsSlider').value=Hm.eps; $('epscSlider').value=Hm.epsc; $('ratioSlider').value=Hm.r; hemeRender(); }
+$('presetO2').addEventListener('click', () => setH({T:310,mu:-0.6,eps:-0.7,epsc:-0.85,co:false,r:2}));
+$('presetCO').addEventListener('click', () => setH({T:310,mu:-0.6,eps:-0.7,epsc:-0.85,co:true,r:2}));
+
+/* ================= FLUCTUATIONS ================= */
+const bellCv = $('bellCanvas'); let bellCtx;
+function fluctRender(){
+  const lg = +$('nSlider').value, N = Math.pow(10, lg);
+  $('nOut').innerHTML = N < 1e6 ? Math.round(N).toLocaleString('en-US') : fmt(N,2);
+  const sig = Math.sqrt(N);
+  $('fSig').innerHTML = fmt(sig,3);
+  $('fRel').innerHTML = fmt(1/sig,3);
+  const c = bellCtx, W=900, H=200, L=30, R=30, T=16, B=34;
+  c.clearRect(0,0,W,H); c.fillStyle=C.surface; c.fillRect(0,0,W,H);
+  const X = x => L + x/(2*N)*(W-L-R);
+  c.strokeStyle=C.rule; c.lineWidth=1; c.beginPath(); c.moveTo(L,H-B); c.lineTo(W-R,H-B); c.stroke();
+  c.fillStyle = C.muted; c.font='14px '+SANS; c.textAlign='center';
+  c.fillText('0', X(0), H-B+20); c.fillText('2N̄', X(2*N), H-B+20);
+  c.font='italic 15px '+SERIF; c.fillText('N̄', X(N), H-B+20);
+  c.textAlign='left';
+  const top = T+6, base = H-B;
+  if (N <= 60){
+    const kmax = Math.floor(2*N); let pm = 0; const ps=[];
+    for (let k=0;k<=kmax;k++){ const p=poisson(N,k); ps.push(p); pm=Math.max(pm,p); }
+    const bw = Math.max(2, (W-L-R)/(2*N)*0.7);
+    c.fillStyle = C.o2;
+    for (let k=0;k<=kmax;k++){ const h=(ps[k]/pm)*(base-top); c.fillRect(X(k)-bw/2, base-h, bw, h); }
+  } else {
+    const rel = sig/N; const pxSig = rel*(W-L-R)/2;
+    c.fillStyle = C.o2;
+    if (pxSig < 1.2){ c.fillRect(X(N)-1.2, top, 2.4, base-top); }
+    else {
+      c.beginPath(); c.moveTo(L, base);
+      for (let i=0;i<=600;i++){ const x = 2*N*i/600; const y = Math.exp(-0.5*Math.pow((x-N)/sig,2)); c.lineTo(X(x), base - y*(base-top)); }
+      c.lineTo(W-R, base); c.closePath(); c.globalAlpha=.85; c.fill(); c.globalAlpha=1;
+    }
+  }
+  c.strokeStyle = C.co; c.setLineDash([4,4]); c.beginPath(); c.moveTo(X(N),T); c.lineTo(X(N),base); c.stroke(); c.setLineDash([]);
+}
+$('nSlider').addEventListener('input', fluctRender);
+
+/* ================= GRAND FREE ENERGY ================= */
+const phiCv = $('phiCanvas'), nbarCv = $('nbarCanvas'); let phiCtx, nbarCtx;
+const MU0 = -1.1, MU1 = -0.3;
+function Phi(mu){ const kT=kB*Hm.T; const x = -(Hm.eps-mu)/kT; // -kT ln(1+e^x), stable
+  return -kT*(x>0 ? x + Math.log1p(Math.exp(-x)) : Math.log1p(Math.exp(x))); }
+function Nbar(mu){ const kT=kB*Hm.T; return 1/(1+Math.exp((Hm.eps-mu)/kT)); }
+function axes(c, W, H, box, xr, yr, xlab, ylab, yticks){
+  const [L,T,R,B] = box;
+  c.clearRect(0,0,W,H); c.fillStyle=C.surface; c.fillRect(0,0,W,H);
+  const X = v => L + (v-xr[0])/(xr[1]-xr[0])*(W-L-R);
+  const Y = v => H-B - (v-yr[0])/(yr[1]-yr[0])*(H-T-B);
+  c.strokeStyle=C.rule; c.lineWidth=1;
+  c.beginPath(); c.moveTo(L,T); c.lineTo(L,H-B); c.lineTo(W-R,H-B); c.stroke();
+  c.fillStyle=C.muted; c.font='12px '+SANS; c.textAlign='center';
+  for (let v=-1.0; v<=-0.29; v+=0.2){ c.fillText(v.toFixed(1), X(v), H-B+16); }
+  c.textAlign='right';
+  yticks.forEach(v => { c.fillText(v, L-6, Y(v)+4); c.strokeStyle=C.band; c.beginPath(); c.moveTo(L+1,Y(v)); c.lineTo(W-R,Y(v)); c.stroke(); });
+  c.textAlign='center'; c.font='13px '+SANS; c.fillText(xlab, (L+W-R)/2, H-6);
+  c.textAlign='left'; c.font='italic 14px '+SERIF; c.fillText(ylab, L+6, T+4);
+  return {X,Y};
+}
+function phiRender(){
+  if (!phiCtx) return;
+  const mu = +$('pmuSlider').value;
+  $('pmuOut').textContent = mu.toFixed(3) + ' eV';
+  const W=440, H=300, box=[48,18,14,40];
+  // Phi panel
+  let c = phiCtx;
+  const ymin = Math.min(-0.85, Phi(MU1)-0.03);
+  let ax = axes(c, W, H, box, [MU0,MU1], [ymin, 0.05], 'μ (eV)', 'Φ (eV)', [0,-0.2,-0.4,-0.6,-0.8].filter(v=>v>=ymin));
+  c.save(); c.beginPath(); c.rect(box[0],box[1],W-box[0]-box[2],H-box[1]-box[3]); c.clip();
+  // eps marker
+  c.strokeStyle=C.rule; c.setLineDash([3,4]); c.beginPath(); c.moveTo(ax.X(Hm.eps),box[1]); c.lineTo(ax.X(Hm.eps),H-box[3]); c.stroke(); c.setLineDash([]);
+  c.strokeStyle=C.o2; c.lineWidth=2.5; c.beginPath();
+  for (let i=0;i<=300;i++){ const m=MU0+(MU1-MU0)*i/300; const x=ax.X(m), y=ax.Y(Phi(m)); i?c.lineTo(x,y):c.moveTo(x,y); }
+  c.stroke();
+  const h=1e-5, slope=(Phi(mu+h)-Phi(mu-h))/(2*h), p0=Phi(mu);
+  c.strokeStyle=C.co; c.lineWidth=1.5; c.beginPath();
+  c.moveTo(ax.X(MU0), ax.Y(p0+slope*(MU0-mu))); c.lineTo(ax.X(MU1), ax.Y(p0+slope*(MU1-mu))); c.stroke();
+  c.fillStyle=C.co; c.beginPath(); c.arc(ax.X(mu),ax.Y(p0),5,0,7); c.fill();
+  c.restore();
+  c.fillStyle=C.muted; c.font='italic 13px '+SERIF; c.fillText('ε', ax.X(Hm.eps)+4, H-box[3]-6);
+  // N panel
+  c = nbarCtx;
+  ax = axes(c, W, H, box, [MU0,MU1], [0,1.08], 'μ (eV)', 'N̄', [0,0.5,1]);
+  c.strokeStyle=C.rule; c.setLineDash([3,4]); c.beginPath(); c.moveTo(ax.X(Hm.eps),box[1]); c.lineTo(ax.X(Hm.eps),H-box[3]); c.stroke(); c.setLineDash([]);
+  c.strokeStyle=C.o2; c.lineWidth=2.5; c.beginPath();
+  for (let i=0;i<=300;i++){ const m=MU0+(MU1-MU0)*i/300; const x=ax.X(m), y=ax.Y(Nbar(m)); i?c.lineTo(x,y):c.moveTo(x,y); }
+  c.stroke();
+  c.fillStyle=C.co; c.beginPath(); c.arc(ax.X(mu),ax.Y(Nbar(mu)),5,0,7); c.fill();
+  c.fillStyle=C.muted; c.font='italic 13px '+SERIF; c.fillText('ε', ax.X(Hm.eps)+4, H-box[3]-6);
+  $('phiVal').textContent = p0.toFixed(4) + ' eV';
+  $('slopeVal').textContent = (-slope).toFixed(4);
+  $('nbarVal').textContent = Nbar(mu).toFixed(4);
+}
+$('pmuSlider').addEventListener('input', phiRender);
+
+/* ================= LAYOUT + LOOP ================= */
+function layout(){
+  simCtx = fit(simCv, 900, 400);
+  histCtx = fit(histCv, 900, 240);
+  stripCtx = fit(stripCv, 900, 44);
+  bellCtx = fit(bellCv, 900, 200);
+  phiCtx = fit(phiCv, 440, 300);
+  nbarCtx = fit(nbarCv, 440, 300);
+  redrawAll();
+}
+function redrawAll(){ drawSim(); drawHist(); updateStats(); drawStrip(); fluctRender(); phiRender(); }
+let resizeT; window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(layout, 80); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { readColors(); redrawAll(); });
+
+let last = performance.now(), histAcc = 0;
+function loop(now){
+  const dt = Math.min(0.05, (now-last)/1000); last = now;
+  if (S.running){
+    step(dt); drawSim();
+    histAcc += dt; if (histAcc > 0.15){ histAcc = 0; drawHist(); updateStats(); }
+  }
+  if (stripTimerRunning){
+    stripAcc += dt;
+    if (stripAcc > 0.12){ stripAcc = 0; strip.push(sampleState()); if (strip.length > STRIP_N) strip.shift(); drawStrip(); }
+  }
+  requestAnimationFrame(loop);
+}
+
+simControls(); syncParts(); S.nowN = countIn();
+hemeCompute(); fillStripStatic();
+layout(); hemeRender();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(redrawAll);
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
