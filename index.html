@@ -52,6 +52,11 @@ p{margin:0 0 1rem}
 
 /* math */
 .eq{display:block;text-align:center;margin:1.25rem 0;overflow-x:auto;overflow-y:hidden;padding:.25rem 0}
+.eq.multi{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;column-gap:2.2em;row-gap:.65rem}
+.boxed.multi{display:inline-flex;flex-wrap:wrap;justify-content:center;align-items:center;column-gap:2em;row-gap:.6rem;max-width:100%}
+.eqp{max-width:100%}
+.eqp.sep{margin-left:1.85em}
+.multi:not(.chain) > .eqp.cont{margin-left:-1.85em}
 mjx-container{color:inherit}
 mjx-container[display="true"]{margin:0 !important}
 .stats mjx-container,.legend mjx-container,.cap mjx-container,.ctl small mjx-container{font-size:105%}
@@ -292,7 +297,7 @@ window.MathJax = {
   <h2 id="h-fluct">How big are the fluctuations?</h2>
   <div class="prose">
     <p>Problem 7.6. Differentiating the Gibbs sum with respect to \(\mu\) pulls down a factor of \(\beta N(s)\) each time, so with \(\beta = 1/k_{\mathrm{B}}T\):</p>
-    <div class="eq">\[ \bar{N} = \frac{k_{\mathrm{B}}T}{\mathcal{Z}}\,\frac{\partial \mathcal{Z}}{\partial \mu}, \qquad \overline{N^2} = \frac{(k_{\mathrm{B}}T)^2}{\mathcal{Z}}\,\frac{\partial^2 \mathcal{Z}}{\partial \mu^2} \]</div>
+    <div class="eq multi"><span class="eqp">\( \displaystyle \bar{N} = \frac{k_{\mathrm{B}}T}{\mathcal{Z}}\,\frac{\partial \mathcal{Z}}{\partial \mu}, \)</span><span class="eqp">\( \displaystyle \overline{N^2} = \frac{(k_{\mathrm{B}}T)^2}{\mathcal{Z}}\,\frac{\partial^2 \mathcal{Z}}{\partial \mu^2} \)</span></div>
     <p>Subtracting \(\bar{N}^2\) and comparing with \(\partial\bar{N}/\partial\mu\) gives a compact result:</p>
     <div class="eq"><span class="boxed">\( \displaystyle \sigma_N = \sqrt{\overline{N^2} - \bar{N}^2} = \sqrt{k_{\mathrm{B}}T \,\frac{\partial \bar{N}}{\partial \mu}} \)</span></div>
     <p>For an ideal gas, \(\mu = -k_{\mathrm{B}}T \ln\!\left(V Z_{\text{int}} / N v_Q\right)\), so \(\partial\mu/\partial N = k_{\mathrm{B}}T/N\) and therefore \(\sigma_N = \sqrt{\bar{N}}\). The relative spread is \(\sigma_N/\bar{N} = 1/\sqrt{\bar{N}}\): large for a handful of particles, utterly invisible for a macroscopic sample.</p>
