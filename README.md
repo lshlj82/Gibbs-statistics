@@ -8,7 +8,11 @@ Created by **Claude Opus 5.5**, based on the lecture notes by **Sang Hoon Lee** 
 
 The page follows the lecture notes section by section.
 
-**Particles come and go.** A live ideal gas simulation. Particles move between a reservoir and an open "system" region, and the demo counts them to build a histogram of *N* in real time, overlaid with the Poisson prediction. Sliders control the chemical potential, the system size, and the animation speed. The measured standard deviation converges to √N̄.
+**Particles come and go.** A live ideal gas simulation. Particles move between a reservoir and an open "system" region, and the demo counts them to build a histogram of *N* in real time, overlaid with the Poisson prediction. Sliders control the system size and the animation speed. The measured standard deviation converges to √N̄.
+
+- **Particle types.** You can add up to four non-interacting particle types (A to D), each with its own color, chemical potential, and mass, and remove them again. Particles inside the system are drawn solid and those in the reservoir faded, and the system label shows a separate count for each type.
+- **Absolute chemical potential.** *μ* is given in units of k<sub>B</sub>T from the ideal gas relation *μ* = k<sub>B</sub>T ln(*n v<sub>Q</sub>*). A dilute gas has *n v<sub>Q</sub>* ≪ 1, so *μ* is negative; the slider runs from −15 to −9.5 k<sub>B</sub>T. Because *v<sub>Q</sub>* ∝ *m*<sup>−3/2</sup>, the density at fixed *μ* goes as *n* ∝ *m*<sup>3/2</sup> e<sup>*μ*/k<sub>B</sub>T</sup>, so a heavier type is denser as well as slower.
+- **Histogram views.** With more than one type, **Side by side** shows each type's measured histogram next to its own Poisson curve, in the type's color, with a per-type table of predicted N̄, measured N̄, σ<sub>N</sub>, and √N̄. You can also view a single type, or **Total N**, which is again Poisson with a mean equal to the sum of the individual means.
 
 **The Gibbs factor.** A short derivation, from the ratio of reservoir multiplicities to the Gibbs factor
 
@@ -62,6 +66,7 @@ python3 -m http.server 8000
 - Supports light and dark mode via `prefers-color-scheme`, and honors `prefers-reduced-motion` (animations start paused).
 - Responsive down to phone widths.
 - Boltzmann constant used: k<sub>B</sub> = 8.617 × 10⁻⁵ eV/K.
+- In the particle simulation, the box is scaled so that a type of mass *m*<sub>0</sub> at *μ* = −12 k<sub>B</sub>T has 44 particles in the reservoir. To keep the animation smooth, each type is capped at 1,500 particles, and the top of its *μ* slider moves down as its mass goes up so the cap is never reached.
 
 ## Caveats
 
