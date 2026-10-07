@@ -202,7 +202,7 @@ window.MathJax = {
         <p class="types-h">Particle types</p>
         <div id="speciesList"></div>
         <button id="addTypeBtn" type="button">Add particle type</button>
-        <small>Each type's \(\mu\) is measured from its own reference value. Raising it by \(k_{\mathrm{B}}T\) multiplies that type's reservoir density by \(e\), because \(\bar{N} \propto e^{\mu/k_{\mathrm{B}}T}\) for an ideal gas. Mass only sets how fast the particles move.</small>
+        <small>For an ideal gas \(\mu = k_{\mathrm{B}}T\ln(n v_Q)\), and a dilute gas has \(n v_Q \ll 1\), so \(\mu\) is negative. Raising it by \(k_{\mathrm{B}}T\) multiplies that type's density by \(e\). Because \(v_Q \propto m^{-3/2}\), a heavier type at the same \(\mu\) is denser, \(n \propto m^{3/2}e^{\mu/k_{\mathrm{B}}T}\), and it also moves more slowly.</small>
       </div>
       <div class="ctl view-ctl" id="viewCtl" hidden>
         <p class="types-h" id="viewLbl">Histogram shows</p>
@@ -226,7 +226,7 @@ window.MathJax = {
       </dl>
     </div>
   </div>
-  <p class="prose note" style="margin-top:1.25rem">Give it a few seconds: the measured \(\sigma_N\) settles onto \(\sqrt{\bar{N}}\), which is exactly the ideal gas result derived in Problem 7.6 further down. With several types, the species don't interact, so each count is Poisson on its own, and so is the total, whose mean is just the sum of the individual means. Mass changes how quickly the histogram fills, but not its shape. <em>Side by side</em> draws every type's measured histogram together with its own Poisson curve.</p>
+  <p class="prose note" style="margin-top:1.25rem">Give it a few seconds: the measured \(\sigma_N\) settles onto \(\sqrt{\bar{N}}\), which is exactly the ideal gas result derived in Problem 7.6 further down. With several types, the species don't interact, so each count is Poisson on its own, and so is the total, whose mean is just the sum of the individual means. Whatever the mass and \(\mu\), each histogram is Poisson; those two only set its mean and, through the speed, how quickly it fills. <em>Side by side</em> draws every type's measured histogram together with its own Poisson curve.</p>
 </section>
 
 <!-- ============ GIBBS FACTOR ============ -->
@@ -478,11 +478,17 @@ let simCtx, histCtx;
 
 // Up to four particle types. Each has a letter, a color token and default μ and mass.
 const TYPE_DEFS = [
-  {letter:'A', tok:'o2',  mu:0.6,  mass:1},
-  {letter:'B', tok:'sp2', mu:0.0,  mass:4},
-  {letter:'C', tok:'sp3', mu:-0.4, mass:0.35},
-  {letter:'D', tok:'sp4', mu:0.3,  mass:2}
+  {letter:'A', tok:'o2',  mu:-11.4,  mass:1},
+  {letter:'B', tok:'sp2', mu:-14.1,  mass:4},
+  {letter:'C', tok:'sp3', mu:-10.8,  mass:0.35},
+  {letter:'D', tok:'sp4', mu:-12.75, mass:2}
 ];
+// μ is absolute, in units of k_BT: for an ideal gas μ = k_BT ln(n v_Q) with v_Q ∝ m^(-3/2),
+// so the reservoir holds N = (V/v_Q) e^(μ/k_BT) ∝ m^(3/2) e^(μ/k_BT) particles.
+// The box is scaled so that a type of mass m0 at μ = MU_REF has S.N0 particles in the reservoir.
+const MU_REF = -12, MU_MIN = -15, MU_MAX = -9.5, MU_STEP = 0.05, PART_CAP = 1500;
+// Highest μ the animation can show for this mass without exceeding PART_CAP particles
+function muCap(mass){ const m = MU_REF + Math.log(PART_CAP/(S.N0*Math.pow(mass,1.5))); return Math.min(MU_MAX, Number((Math.floor(m/MU_STEP + 1e-9)*MU_STEP).toFixed(2))); }
 const MASS_MIN = 0.25, MASS_MAX = 4;
 const massFrom = v => MASS_MIN*Math.pow(MASS_MAX/MASS_MIN, v);
 const massTo = m => Math.log(m/MASS_MIN)/Math.log(MASS_MAX/MASS_MIN);
@@ -494,7 +500,7 @@ S.tot = newStats();
 function fracFrom(v){ const a=Math.log(1/64), b=Math.log(1/5); return Math.exp(a + v*(b-a)); }
 function win(){ const a = Math.sqrt(S.frac*S.W*S.H); return {x:S.W*0.64 - a/2, y:S.H/2 - a/2, a}; }
 function inWin(p, w){ return p.x>=w.x && p.x<w.x+w.a && p.y>=w.y && p.y<w.y+w.a; }
-function targetTotal(sp){ return Math.max(1, Math.round(S.N0*Math.exp(sp.mu))); }
+function targetTotal(sp){ return Math.max(1, Math.round(S.N0*Math.exp(sp.mu - MU_REF)*Math.pow(sp.mass,1.5))); }
 function newVel(p, sp){ const s = 70/Math.sqrt(sp.mass); p.vx = gauss()*s; p.vy = gauss()*s; }
 function addPart(sp){ const p={x:Math.random()*S.W, y:Math.random()*S.H}; newVel(p, sp); sp.parts.push(p); }
 function syncParts(sp){
@@ -697,7 +703,7 @@ function renderSpecies(){
       '<div class="species-head"><span><span class="swatch"></span>Type '+sp.letter+'</span>' +
         (single ? '' : '<button type="button" class="rm" aria-label="Remove type '+sp.letter+'">Remove</button>') + '</div>' +
       '<div class="ctl"><label for="'+mid+'"><span class="lt"><span class="m">μ</span></span> <output><span class="muv">'+muText(sp.mu)+'</span> '+KBT+'</output></label>' +
-        '<input type="range" id="'+mid+'" min="-1" max="2.5" step="0.05" value="'+sp.mu+'"></div>' +
+        '<input type="range" id="'+mid+'" min="'+MU_MIN+'" max="'+muCap(sp.mass)+'" step="'+MU_STEP+'" value="'+sp.mu+'"></div>' +
       '<div class="ctl"><label for="'+aid+'"><span class="lt">Mass</span> <output class="mav">'+sp.mass.toFixed(2)+' <span class="m">m</span><sub>0</sub></output></label>' +
         '<input type="range" id="'+aid+'" min="0" max="1" step="0.01" value="'+massTo(sp.mass).toFixed(3)+'"></div>';
     card.querySelector('#'+mid).addEventListener('input', e => {
@@ -708,7 +714,11 @@ function renderSpecies(){
       const old = sp.mass; sp.mass = massFrom(+e.target.value);
       card.querySelector('.mav').innerHTML = sp.mass.toFixed(2)+' <span class="m">m</span><sub>0</sub>';
       const f = Math.sqrt(old/sp.mass); for (const p of sp.parts){ p.vx *= f; p.vy *= f; }
-      refreshIfPaused();
+      // at fixed μ the density goes as m^(3/2); keep μ within what the animation can draw
+      const muIn = card.querySelector('#'+mid), cap = muCap(sp.mass);
+      muIn.max = cap;
+      if (sp.mu > cap){ sp.mu = cap; muIn.value = cap; card.querySelector('.muv').textContent = muText(sp.mu); }
+      syncParts(sp); countIn(); resetHist(); refreshIfPaused();
     });
     const rm = card.querySelector('.rm');
     if (rm) rm.addEventListener('click', () => {
