@@ -14,6 +14,7 @@
   padding-bottom:env(safe-area-inset-bottom,0px);
   --bg:#EDF1F4; --surface:#F8FAFC; --ink:#15202B; --muted:#56636F; --rule:#C5CFD7;
   --o2:#2B67D1; --co:#B0243A; --res:#8B98A4; --empty:#BFC9D1; --band:#E2E8ED;
+  --sp2:#B7740F; --sp3:#23865A; --sp4:#7C4BC4;
   --serif:"Newsreader",Georgia,"Times New Roman",serif;
   --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
 }
@@ -21,11 +22,13 @@
   :root:not([data-theme="light"]){
     --bg:#0E151C; --surface:#141D26; --ink:#E3E9EE; --muted:#97A4B0; --rule:#2B3743;
     --o2:#6E9FF2; --co:#EA6A7D; --res:#5B6976; --empty:#34424F; --band:#1B2631;
+    --sp2:#E4AE52; --sp3:#5CC48E; --sp4:#AE8CF0;
   }
 }
 :root[data-theme="dark"]{
   --bg:#0E151C; --surface:#141D26; --ink:#E3E9EE; --muted:#97A4B0; --rule:#2B3743;
   --o2:#6E9FF2; --co:#EA6A7D; --res:#5B6976; --empty:#34424F; --band:#1B2631;
+  --sp2:#E4AE52; --sp3:#5CC48E; --sp4:#AE8CF0;
 }
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
@@ -87,6 +90,32 @@ input[type=range]{width:100%;accent-color:var(--o2);margin:0}
 button{font-family:var(--sans);font-size:.88rem;font-weight:500;color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:4px;padding:.45rem .8rem;cursor:pointer}
 button:hover{border-color:var(--ink)}
 button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+button:disabled{opacity:.45;cursor:not-allowed}
+button:disabled:hover{border-color:var(--rule)}
+
+/* particle types */
+.types-h{font-family:var(--sans);font-size:.9rem;font-weight:600;margin:0 0 .5rem}
+.species{border:1px solid var(--rule);border-left:3px solid var(--sc);border-radius:4px;padding:.6rem .7rem .7rem;margin-bottom:.6rem;font-family:var(--sans);font-size:.9rem}
+.species-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.45rem;font-weight:600}
+.species-head .swatch{background:var(--sc)}
+.species .ctl{margin-bottom:.55rem}
+.species .ctl:last-child{margin-bottom:0}
+.species input[type=range]{accent-color:var(--sc)}
+.species .rm{padding:.15rem .5rem;font-size:.8rem;font-weight:500}
+.seg{display:flex;flex-wrap:wrap;gap:.35rem}
+.seg button{padding:.3rem .65rem}
+.view-ctl[hidden]{display:none}
+.legend[hidden],.stats[hidden],.stats-each[hidden]{display:none}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.stats-each{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:.8rem;font-variant-numeric:tabular-nums}
+.stats-each th{font-weight:400;color:var(--muted);text-align:right;padding:0 0 .3rem .35rem;white-space:nowrap}
+.stats-each th:first-child,.stats-each td:first-child{text-align:left;padding-left:0}
+.stats-each td{text-align:right;padding:.2rem 0 .2rem .35rem;font-weight:500;border-top:1px solid var(--rule)}
+.stats-each .swatch{width:.65rem;height:.65rem;margin-right:.3rem}
+.stats-each tfoot td{color:var(--muted);font-weight:400}
+.stats-each tfoot td:last-child{color:var(--ink);font-weight:500}
+.ovl{text-decoration:overline}
+.legend-each .swatch{border-radius:50%}
 .check{display:flex;align-items:center;gap:.5rem;font-weight:500;cursor:pointer}
 .check input{accent-color:var(--co);width:1rem;height:1rem;margin:0}
 
@@ -147,23 +176,19 @@ window.MathJax = {
 <!-- ============ SIMULATION ============ -->
 <section id="exchange" aria-labelledby="h-exchange">
   <h2 id="h-exchange">Particles come and go</h2>
-  <p class="prose">The box is an ideal gas reservoir. The blue-tinted square is our system: an open region with no walls. Particles inside are drawn in blue. Every few frames the demo counts them and adds that count to the histogram, building up the probability distribution of \(N\).</p>
+  <p class="prose">The box is an ideal gas reservoir. The blue-tinted square is our system: an open region with no walls. Particles inside are drawn solid; those out in the reservoir are faded. Every few frames the demo counts them and adds that count to the histogram, building up the probability distribution of \(N\). Use <em>Add particle type</em> to mix in other species, each with its own chemical potential and mass.</p>
 
   <div class="fig">
     <div>
       <div class="canvas-holder"><canvas id="simCanvas" aria-label="Animation of gas particles moving between a reservoir and an open system region"></canvas></div>
       <div class="canvas-holder" style="margin-top:.75rem"><canvas id="histCanvas" aria-label="Histogram of the particle number in the system compared with the Poisson prediction"></canvas></div>
-      <div class="legend">
-        <span><span class="swatch" style="background:var(--o2)"></span>Measured frequency of each \(N\)</span>
+      <div class="legend legend-each" id="legendEach" hidden></div>
+      <div class="legend" id="legendOne">
+        <span><span class="swatch" id="measSwatch" style="background:var(--o2)"></span>Measured frequency of each \(N\)</span>
         <span><span class="swatch" style="background:var(--co)"></span>Poisson prediction with the same mean</span>
       </div>
     </div>
     <div class="panel">
-      <div class="ctl">
-        <label for="muSlider"><span class="lt">Chemical potential \(\mu\)</span> <output><span id="muNum"></span>\(\,k_{\mathrm{B}}T\)</output></label>
-        <input type="range" id="muSlider" min="-1" max="2.5" step="0.05" value="0.6">
-        <small>Measured from a reference value. Raising \(\mu\) by \(k_{\mathrm{B}}T\) multiplies the reservoir density by \(e\), because \(\bar{N} \propto e^{\mu/k_{\mathrm{B}}T}\) for an ideal gas.</small>
-      </div>
       <div class="ctl">
         <label for="sizeSlider"><span class="lt">System size</span> <output id="sizeOut"></output></label>
         <input type="range" id="sizeSlider" min="0" max="1" step="0.01" value="0.45">
@@ -173,11 +198,26 @@ window.MathJax = {
         <label for="speedSlider"><span class="lt">Animation speed</span> <output id="speedOut"></output></label>
         <input type="range" id="speedSlider" min="0.25" max="3" step="0.05" value="1">
       </div>
+      <div class="ctl">
+        <p class="types-h">Particle types</p>
+        <div id="speciesList"></div>
+        <button id="addTypeBtn" type="button">Add particle type</button>
+        <small>Each type's \(\mu\) is measured from its own reference value. Raising it by \(k_{\mathrm{B}}T\) multiplies that type's reservoir density by \(e\), because \(\bar{N} \propto e^{\mu/k_{\mathrm{B}}T}\) for an ideal gas. Mass only sets how fast the particles move.</small>
+      </div>
+      <div class="ctl view-ctl" id="viewCtl" hidden>
+        <p class="types-h" id="viewLbl">Histogram shows</p>
+        <div class="seg" id="viewSeg" role="group" aria-labelledby="viewLbl"></div>
+      </div>
       <div class="ctl btns">
         <button id="playBtn" type="button">Pause</button>
         <button id="clearBtn" type="button">Clear histogram</button>
       </div>
-      <dl class="stats" aria-live="polite">
+      <div class="table-wrap"><table class="stats-each" id="statsEach" aria-live="polite" hidden>
+        <thead><tr><th scope="col"><span class="vh">Type</span></th><th scope="col"><span class="m ovl">N</span> pred.</th><th scope="col"><span class="m ovl">N</span> meas.</th><th scope="col"><span class="m">σ</span><sub><span class="m">N</span></sub></th><th scope="col">√<span class="m ovl">N</span></th></tr></thead>
+        <tbody id="statsEachBody"></tbody>
+        <tfoot><tr><td colspan="4">Samples</td><td id="stCountEach">0</td></tr></tfoot>
+      </table></div>
+      <dl class="stats" id="statsOne" aria-live="polite">
         <dt>Predicted \(\bar{N}\)</dt><dd id="stPred">–</dd>
         <dt>Measured \(\bar{N}\)</dt><dd id="stMean">–</dd>
         <dt>Measured \(\sigma_N\)</dt><dd id="stSig">–</dd>
@@ -186,7 +226,7 @@ window.MathJax = {
       </dl>
     </div>
   </div>
-  <p class="prose note" style="margin-top:1.25rem">Give it a few seconds: the measured \(\sigma_N\) settles onto \(\sqrt{\bar{N}}\), which is exactly the ideal gas result derived in Problem 7.6 further down.</p>
+  <p class="prose note" style="margin-top:1.25rem">Give it a few seconds: the measured \(\sigma_N\) settles onto \(\sqrt{\bar{N}}\), which is exactly the ideal gas result derived in Problem 7.6 further down. With several types, the species don't interact, so each count is Poisson on its own, and so is the total, whose mean is just the sum of the individual means. Mass changes how quickly the histogram fills, but not its shape. <em>Side by side</em> draws every type's measured histogram together with its own Poisson curve.</p>
 </section>
 
 <!-- ============ GIBBS FACTOR ============ -->
@@ -372,7 +412,7 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let C = {};
 function readColors(){
   const cs = getComputedStyle(document.documentElement);
-  ['bg','surface','ink','muted','rule','o2','co','res','empty','band'].forEach(k => C[k] = cs.getPropertyValue('--'+k).trim());
+  ['bg','surface','ink','muted','rule','o2','co','res','empty','band','sp2','sp3','sp4'].forEach(k => C[k] = cs.getPropertyValue('--'+k).trim());
 }
 readColors();
 
@@ -432,52 +472,75 @@ function poisson(m, k){ // pmf via logs
 }
 
 /* ================= SIMULATION ================= */
-const S = {W:900, H:400, mu:0.6, frac:1/16, N0:44, speed:1, parts:[], hist:[], samples:0, sum:0, sum2:0, frame:0, running:!reduceMotion, nowN:0};
+const S = {W:900, H:400, frac:1/16, N0:44, speed:1, species:[], tot:null, view:null, frame:0, running:!reduceMotion, nowN:0};
 const simCv = $('simCanvas'), histCv = $('histCanvas');
 let simCtx, histCtx;
 
+// Up to four particle types. Each has a letter, a color token and default μ and mass.
+const TYPE_DEFS = [
+  {letter:'A', tok:'o2',  mu:0.6,  mass:1},
+  {letter:'B', tok:'sp2', mu:0.0,  mass:4},
+  {letter:'C', tok:'sp3', mu:-0.4, mass:0.35},
+  {letter:'D', tok:'sp4', mu:0.3,  mass:2}
+];
+const MASS_MIN = 0.25, MASS_MAX = 4;
+const massFrom = v => MASS_MIN*Math.pow(MASS_MAX/MASS_MIN, v);
+const massTo = m => Math.log(m/MASS_MIN)/Math.log(MASS_MAX/MASS_MIN);
+
+function newStats(){ return {hist:[], n:0, sum:0, sum2:0}; }
+function record(st, k){ st.hist[k] = (st.hist[k]||0) + 1; st.n++; st.sum += k; st.sum2 += k*k; }
+S.tot = newStats();
+
 function fracFrom(v){ const a=Math.log(1/64), b=Math.log(1/5); return Math.exp(a + v*(b-a)); }
 function win(){ const a = Math.sqrt(S.frac*S.W*S.H); return {x:S.W*0.64 - a/2, y:S.H/2 - a/2, a}; }
-function targetTotal(){ return Math.max(1, Math.round(S.N0*Math.exp(S.mu))); }
-function newVel(p){ p.vx = gauss()*70; p.vy = gauss()*70; }
-function addPart(){ const p={x:Math.random()*S.W, y:Math.random()*S.H}; newVel(p); S.parts.push(p); }
-function syncParts(){
-  const t = targetTotal();
-  while (S.parts.length < t) addPart();
-  while (S.parts.length > t) S.parts.splice(Math.floor(Math.random()*S.parts.length), 1);
+function inWin(p, w){ return p.x>=w.x && p.x<w.x+w.a && p.y>=w.y && p.y<w.y+w.a; }
+function targetTotal(sp){ return Math.max(1, Math.round(S.N0*Math.exp(sp.mu))); }
+function newVel(p, sp){ const s = 70/Math.sqrt(sp.mass); p.vx = gauss()*s; p.vy = gauss()*s; }
+function addPart(sp){ const p={x:Math.random()*S.W, y:Math.random()*S.H}; newVel(p, sp); sp.parts.push(p); }
+function syncParts(sp){
+  const t = targetTotal(sp);
+  while (sp.parts.length < t) addPart(sp);
+  while (sp.parts.length > t) sp.parts.splice(Math.floor(Math.random()*sp.parts.length), 1);
 }
-function resetHist(){ S.hist=[]; S.samples=0; S.sum=0; S.sum2=0; }
+function resetHist(){ S.tot = newStats(); for (const sp of S.species) sp.st = newStats(); }
 function countIn(){
-  const w = win(); let n=0;
-  for (const p of S.parts) if (p.x>=w.x && p.x<w.x+w.a && p.y>=w.y && p.y<w.y+w.a) n++;
-  return n;
+  const w = win(); let total = 0;
+  for (const sp of S.species){ let n=0; for (const p of sp.parts) if (inWin(p,w)) n++; sp.now = n; total += n; }
+  S.nowN = total;
+  return total;
 }
+function meanOf(sp){ return sp.parts.length * S.frac; }
 function step(dt){
   dt *= S.speed;
-  for (const p of S.parts){
-    p.x += p.vx*dt; p.y += p.vy*dt;
-    if (p.x<0){p.x=-p.x;p.vx=-p.vx} else if (p.x>S.W){p.x=2*S.W-p.x;p.vx=-p.vx}
-    if (p.y<0){p.y=-p.y;p.vy=-p.vy} else if (p.y>S.H){p.y=2*S.H-p.y;p.vy=-p.vy}
-    if (Math.random() < 0.012*S.speed) newVel(p); // thermalizing kicks from the walls/bath
+  for (const sp of S.species){
+    for (const p of sp.parts){
+      p.x += p.vx*dt; p.y += p.vy*dt;
+      if (p.x<0){p.x=-p.x;p.vx=-p.vx} else if (p.x>S.W){p.x=2*S.W-p.x;p.vx=-p.vx}
+      if (p.y<0){p.y=-p.y;p.vy=-p.vy} else if (p.y>S.H){p.y=2*S.H-p.y;p.vy=-p.vy}
+      if (Math.random() < 0.012*S.speed) newVel(p, sp); // thermalizing kicks from the walls/bath
+    }
   }
-  S.nowN = countIn();
+  countIn();
   S.frame++;
   if (S.frame % 3 === 0){
-    const n = S.nowN;
-    S.hist[n] = (S.hist[n]||0) + 1; S.samples++; S.sum += n; S.sum2 += n*n;
+    for (const sp of S.species) record(sp.st, sp.now);
+    record(S.tot, S.nowN);
   }
 }
+function radius(sp, inside){ return (inside ? 4 : 3.2) * Math.pow(sp.mass, 0.15); }
 function drawSim(){
   const c = simCtx, w = win();
   c.clearRect(0,0,S.W,S.H);
   c.fillStyle = C.surface; c.fillRect(0,0,S.W,S.H);
   c.save(); c.globalAlpha = 0.12; c.fillStyle = C.o2; c.fillRect(w.x,w.y,w.a,w.a); c.restore();
   c.setLineDash([6,5]); c.strokeStyle = C.o2; c.lineWidth = 1.5; c.strokeRect(w.x,w.y,w.a,w.a); c.setLineDash([]);
-  for (const p of S.parts){
-    const inside = p.x>=w.x && p.x<w.x+w.a && p.y>=w.y && p.y<w.y+w.a;
-    c.fillStyle = inside ? C.o2 : C.res;
-    c.beginPath(); c.arc(p.x,p.y, inside?4:3.2, 0, 7); c.fill();
-  }
+  // reservoir particles first (faded), then the ones inside the system on top
+  c.globalAlpha = 0.42;
+  for (const sp of S.species){ c.fillStyle = C[sp.tok]; const r = radius(sp,false);
+    for (const p of sp.parts) if (!inWin(p,w)){ c.beginPath(); c.arc(p.x,p.y,r,0,7); c.fill(); } }
+  c.globalAlpha = 1;
+  for (const sp of S.species){ c.fillStyle = C[sp.tok]; const r = radius(sp,true);
+    for (const p of sp.parts) if (inWin(p,w)){ c.beginPath(); c.arc(p.x,p.y,r,0,7); c.fill(); } }
   c.fillStyle = C.ink; c.font = '500 20px '+SERIF;
   c.fillText('Reservoir', 22, 36);
   c.fillStyle = C.muted;
@@ -485,31 +548,34 @@ function drawSim(){
   c.font='18px '+SERIF; c.fillText(',', lx, 60); lx += c.measureText(', ').width;
   c.font='italic 18px '+SERIF; c.fillText('μ', lx, 60); lx += c.measureText('μ').width;
   c.font='16px '+SANS; c.fillText(' fixed', lx + 2, 60);
-  c.fillStyle = C.o2; c.font = '600 15px '+SANS;
+  // System label with one count per type
   const ly = w.y > 30 ? w.y - 10 : w.y + w.a + 20;
-  c.fillText('System', w.x, ly);
-  const sw = c.measureText('System').width;
-  drawSym(c, w.x + sw + 14, ly, 17, 'N', '= ' + S.nowN);
+  const single = S.species.length === 1;
+  // lay the label out once to measure it, then draw it, shifted left if it would run off the canvas
+  const pieces = [];
+  let x = 0;
+  c.font = '600 15px '+SANS; pieces.push({t:'System', f:c.font, col:C.o2, x, dy:0}); x += c.measureText('System').width + 14;
+  for (const sp of S.species){
+    const col = C[sp.tok];
+    c.font = 'italic 17px '+SERIF; pieces.push({t:'N', f:c.font, col, x, dy:0}); x += c.measureText('N').width;
+    if (!single){ c.font = '12px '+SANS; pieces.push({t:sp.letter, f:c.font, col, x:x+1, dy:4}); x += c.measureText(sp.letter).width + 2; }
+    c.font = 16*0.92 + 'px '+SANS; const t = ' = ' + sp.now; pieces.push({t, f:c.font, col, x:x+2, dy:0}); x += c.measureText(t).width + 16;
+  }
+  const x0 = Math.max(12, Math.min(w.x, S.W - 12 - (x - 16)));
+  c.textAlign = 'left';
+  for (const q of pieces){ c.font = q.f; c.fillStyle = q.col; c.fillText(q.t, x0 + q.x, ly + q.dy); }
 }
-function drawHist(){
-  const c = histCtx, W=900, H=240, L=46, R=16, T=18, B=34;
-  c.clearRect(0,0,W,H); c.fillStyle = C.surface; c.fillRect(0,0,W,H);
-  const m = S.parts.length * S.frac;
-  let kmax = Math.ceil(m + 4.5*Math.sqrt(m) + 3);
-  kmax = Math.max(kmax, S.hist.length);
-  const freqs = []; let fmax = 0;
-  for (let k=0;k<=kmax;k++){ const f = S.samples ? (S.hist[k]||0)/S.samples : 0; freqs.push(f); fmax=Math.max(fmax,f); }
-  const pois = []; for (let k=0;k<=kmax;k++){ const p=poisson(m,k); pois.push(p); fmax=Math.max(fmax,p); }
-  fmax *= 1.12;
-  const bw = (W-L-R)/(kmax+1);
-  const X = k => L + k*bw, Y = f => H-B - f/fmax*(H-B-T);
-  c.strokeStyle = C.rule; c.lineWidth = 1; c.beginPath(); c.moveTo(L,H-B); c.lineTo(W-R,H-B); c.stroke();
-  c.fillStyle = C.o2;
-  for (let k=0;k<=kmax;k++){ if (freqs[k]>0){ const y=Y(freqs[k]); c.fillRect(X(k)+bw*0.12, y, bw*0.76, H-B-y); } }
-  c.strokeStyle = C.co; c.lineWidth = 2; c.beginPath();
-  for (let k=0;k<=kmax;k++){ const x=X(k)+bw/2, y=Y(pois[k]); k?c.lineTo(x,y):c.moveTo(x,y); }
-  c.stroke();
-  c.fillStyle = C.co; for (let k=0;k<=kmax;k++){ c.beginPath(); c.arc(X(k)+bw/2,Y(pois[k]),2.6,0,7); c.fill(); }
+// What the histogram and stats currently show
+function current(){
+  if (S.view === 'all' && S.species.length > 1){
+    let m = 0; for (const sp of S.species) m += meanOf(sp);
+    return {st:S.tot, m, color:C.ink, css:'var(--ink)'};
+  }
+  const sp = S.species.find(q => q.id === S.view) || S.species[0];
+  return {st:sp.st, m:meanOf(sp), color:C[sp.tok], css:'var(--'+sp.tok+')'};
+}
+const eachView = () => S.view === 'each' && S.species.length > 1;
+function histAxes(c, W, H, L, R, T, B, kmax, bw, X){
   c.fillStyle = C.muted; c.font = '13px '+SANS; c.textAlign='center';
   const stepL = Math.max(1, Math.ceil(kmax/12));
   for (let k=0;k<=kmax;k+=stepL) c.fillText(k, X(k)+bw/2, H-B+18);
@@ -517,26 +583,173 @@ function drawHist(){
   c.save(); c.translate(16, (H-B+T)/2); c.rotate(-Math.PI/2); c.textAlign='center'; c.font='13px '+SANS; c.fillText('probability', 0, 0); c.restore();
   c.textAlign='left';
 }
+// Every type at once: grouped bars (measured) plus one Poisson curve per type, each in the type's color.
+function drawHistEach(){
+  const c = histCtx, W=900, H=240, L=46, R=16, T=26, B=34;
+  c.clearRect(0,0,W,H); c.fillStyle = C.surface; c.fillRect(0,0,W,H);
+  const sps = S.species, n = sps.length;
+  let kmax = 0;
+  for (const sp of sps){ const m = meanOf(sp); kmax = Math.max(kmax, Math.ceil(m + 4.5*Math.sqrt(m) + 3), sp.st.hist.length - 1); }
+  let fmax = 0;
+  const data = sps.map(sp => {
+    const m = meanOf(sp), freqs = [], pois = [];
+    for (let k=0;k<=kmax;k++){
+      const f = sp.st.n ? (sp.st.hist[k]||0)/sp.st.n : 0, p = poisson(m,k);
+      freqs.push(f); pois.push(p); fmax = Math.max(fmax, f, p);
+    }
+    return {sp, m, freqs, pois};
+  });
+  fmax *= 1.12;
+  const bw = (W-L-R)/(kmax+1), gw = bw*0.84, sw = gw/n;
+  const X = k => L + k*bw, Y = f => H-B - f/fmax*(H-B-T);
+  const cx = (k,i) => X(k) + (bw-gw)/2 + sw*(i+0.5);
+  c.strokeStyle = C.rule; c.lineWidth = 1; c.beginPath(); c.moveTo(L,H-B); c.lineTo(W-R,H-B); c.stroke();
+  c.globalAlpha = 0.4;
+  data.forEach((d,i) => { c.fillStyle = C[d.sp.tok];
+    for (let k=0;k<=kmax;k++) if (d.freqs[k]>0){ const y=Y(d.freqs[k]); c.fillRect(cx(k,i)-sw*0.45, y, sw*0.9, H-B-y); } });
+  c.globalAlpha = 1;
+  const labels = [];
+  data.forEach((d,i) => {
+    const col = C[d.sp.tok];
+    c.strokeStyle = col; c.lineWidth = 2; c.beginPath();
+    for (let k=0;k<=kmax;k++){ const x=cx(k,i), y=Y(d.pois[k]); k?c.lineTo(x,y):c.moveTo(x,y); }
+    c.stroke();
+    c.fillStyle = col; for (let k=0;k<=kmax;k++){ c.beginPath(); c.arc(cx(k,i),Y(d.pois[k]),2.4,0,7); c.fill(); }
+    // letter above the curve's peak, nudged up if it would collide with another label
+    let kp = 0; for (let k=1;k<=kmax;k++) if (d.pois[k] > d.pois[kp]) kp = k;
+    let lx = cx(kp,i), ly = Y(d.pois[kp]) - 9;
+    for (const o of labels) if (Math.abs(o.x-lx) < 16 && Math.abs(o.y-ly) < 15) ly = o.y - 15;
+    ly = Math.max(13, ly); labels.push({x:lx, y:ly});
+    c.font = '600 13px '+SANS; c.textAlign = 'center'; c.fillText(d.sp.letter, lx, ly);
+  });
+  histAxes(c, W, H, L, R, T, B, kmax, bw, X);
+}
+function drawHist(){
+  $('legendEach').hidden = !eachView(); $('legendOne').hidden = eachView();
+  if (eachView()){ drawHistEach(); return; }
+  const c = histCtx, W=900, H=240, L=46, R=16, T=18, B=34;
+  c.clearRect(0,0,W,H); c.fillStyle = C.surface; c.fillRect(0,0,W,H);
+  const cur = current(), st = cur.st, m = cur.m;
+  $('measSwatch').style.background = cur.css;
+  let kmax = Math.ceil(m + 4.5*Math.sqrt(m) + 3);
+  kmax = Math.max(kmax, st.hist.length - 1);
+  const freqs = []; let fmax = 0;
+  for (let k=0;k<=kmax;k++){ const f = st.n ? (st.hist[k]||0)/st.n : 0; freqs.push(f); fmax=Math.max(fmax,f); }
+  const pois = []; for (let k=0;k<=kmax;k++){ const p=poisson(m,k); pois.push(p); fmax=Math.max(fmax,p); }
+  fmax *= 1.12;
+  const bw = (W-L-R)/(kmax+1);
+  const X = k => L + k*bw, Y = f => H-B - f/fmax*(H-B-T);
+  c.strokeStyle = C.rule; c.lineWidth = 1; c.beginPath(); c.moveTo(L,H-B); c.lineTo(W-R,H-B); c.stroke();
+  c.fillStyle = cur.color; if (cur.color === C.ink) c.globalAlpha = 0.72;
+  for (let k=0;k<=kmax;k++){ if (freqs[k]>0){ const y=Y(freqs[k]); c.fillRect(X(k)+bw*0.12, y, bw*0.76, H-B-y); } }
+  c.globalAlpha = 1;
+  c.strokeStyle = C.co; c.lineWidth = 2; c.beginPath();
+  for (let k=0;k<=kmax;k++){ const x=X(k)+bw/2, y=Y(pois[k]); k?c.lineTo(x,y):c.moveTo(x,y); }
+  c.stroke();
+  c.fillStyle = C.co; for (let k=0;k<=kmax;k++){ c.beginPath(); c.arc(X(k)+bw/2,Y(pois[k]),2.6,0,7); c.fill(); }
+  histAxes(c, W, H, L, R, T, B, kmax, bw, X);
+}
+function statCells(st, m){
+  const pred = fmt(m,3);
+  if (st.n > 1){
+    const mean = st.sum/st.n, v = st.sum2/st.n - mean*mean;
+    return [pred, mean.toFixed(2), Math.sqrt(Math.max(0,v)).toFixed(2), Math.sqrt(mean).toFixed(2)];
+  }
+  return [pred, '–', '–', '–'];
+}
 function updateStats(){
-  const m = S.parts.length * S.frac;
-  $('stPred').innerHTML = fmt(m,3);
-  if (S.samples > 1){
-    const mean = S.sum/S.samples, v = S.sum2/S.samples - mean*mean;
+  const each = eachView();
+  $('statsEach').hidden = !each; $('statsOne').hidden = each;
+  if (each){
+    $('statsEachBody').innerHTML = S.species.map(sp =>
+      '<tr><td><span class="swatch" style="background:var(--'+sp.tok+')"></span>'+sp.letter+'</td><td>' +
+      statCells(sp.st, meanOf(sp)).join('</td><td>') + '</td></tr>').join('');
+    $('stCountEach').textContent = S.tot.n.toLocaleString('en-US');
+    return;
+  }
+  const cur = current(), st = cur.st;
+  $('stPred').innerHTML = fmt(cur.m,3);
+  if (st.n > 1){
+    const mean = st.sum/st.n, v = st.sum2/st.n - mean*mean;
     $('stMean').innerHTML = mean.toFixed(2);
     $('stSig').innerHTML = Math.sqrt(Math.max(0,v)).toFixed(2);
     $('stSqrt').innerHTML = Math.sqrt(mean).toFixed(2);
   } else { $('stMean').textContent = $('stSig').textContent = $('stSqrt').textContent = '–'; }
-  $('stCount').textContent = S.samples.toLocaleString('en-US');
+  $('stCount').textContent = st.n.toLocaleString('en-US');
 }
+function refreshIfPaused(){ if (!S.running){ drawSim(); drawHist(); updateStats(); } }
+
+/* ---- particle type controls ---- */
+let nextId = 1;
+function makeSpecies(def){ const sp = {id:nextId++, letter:def.letter, tok:def.tok, mu:def.mu, mass:def.mass, parts:[], st:newStats(), now:0}; syncParts(sp); return sp; }
+function freeDef(){ return TYPE_DEFS.find(d => !S.species.some(sp => sp.letter === d.letter)); }
+function muText(mu){ return (mu>=0?'+':'−') + Math.abs(mu).toFixed(2); }
+const KBT = '<span class="m">k</span><sub>B</sub><span class="m">T</span>';
+function renderSpecies(){
+  const list = $('speciesList'); list.innerHTML = '';
+  const single = S.species.length === 1;
+  S.species.sort((a,b) => a.letter.localeCompare(b.letter));
+  for (const sp of S.species){
+    const card = document.createElement('div');
+    card.className = 'species'; card.style.setProperty('--sc', 'var(--'+sp.tok+')');
+    const mid = 'mu'+sp.id, aid = 'ma'+sp.id;
+    card.innerHTML =
+      '<div class="species-head"><span><span class="swatch"></span>Type '+sp.letter+'</span>' +
+        (single ? '' : '<button type="button" class="rm" aria-label="Remove type '+sp.letter+'">Remove</button>') + '</div>' +
+      '<div class="ctl"><label for="'+mid+'"><span class="lt"><span class="m">μ</span></span> <output><span class="muv">'+muText(sp.mu)+'</span> '+KBT+'</output></label>' +
+        '<input type="range" id="'+mid+'" min="-1" max="2.5" step="0.05" value="'+sp.mu+'"></div>' +
+      '<div class="ctl"><label for="'+aid+'"><span class="lt">Mass</span> <output class="mav">'+sp.mass.toFixed(2)+' <span class="m">m</span><sub>0</sub></output></label>' +
+        '<input type="range" id="'+aid+'" min="0" max="1" step="0.01" value="'+massTo(sp.mass).toFixed(3)+'"></div>';
+    card.querySelector('#'+mid).addEventListener('input', e => {
+      sp.mu = +e.target.value; card.querySelector('.muv').textContent = muText(sp.mu);
+      syncParts(sp); countIn(); resetHist(); refreshIfPaused();
+    });
+    card.querySelector('#'+aid).addEventListener('input', e => {
+      const old = sp.mass; sp.mass = massFrom(+e.target.value);
+      card.querySelector('.mav').innerHTML = sp.mass.toFixed(2)+' <span class="m">m</span><sub>0</sub>';
+      const f = Math.sqrt(old/sp.mass); for (const p of sp.parts){ p.vx *= f; p.vy *= f; }
+      refreshIfPaused();
+    });
+    const rm = card.querySelector('.rm');
+    if (rm) rm.addEventListener('click', () => {
+      S.species = S.species.filter(q => q !== sp);
+      if (S.view === sp.id) S.view = S.species.length > 1 ? 'each' : S.species[0].id;
+      countIn(); resetHist(); renderSpecies(); $('addTypeBtn').focus(); refreshIfPaused();
+    });
+    list.appendChild(card);
+  }
+  $('addTypeBtn').disabled = !freeDef();
+  // histogram view selector
+  const seg = $('viewSeg'); seg.innerHTML = '';
+  $('viewCtl').hidden = single;
+  if (single) S.view = S.species[0].id;
+  const opts = single ? [] : [{v:'each', t:'Side by side'}];
+  for (const sp of S.species) opts.push({v:sp.id, t:'Type '+sp.letter});
+  if (!single) opts.push({v:'all', t:'Total N'});
+  $('legendEach').innerHTML = S.species.map(sp =>
+      '<span><span class="swatch" style="background:var(--'+sp.tok+')"></span>Type '+sp.letter+'</span>').join('') +
+    '<span>Faded bars: measured frequency. Line: Poisson prediction with that type’s mean.</span>';
+  for (const o of opts){
+    const b = document.createElement('button'); b.type = 'button'; b.textContent = o.t;
+    b.setAttribute('aria-pressed', String(S.view === o.v));
+    b.addEventListener('click', () => { S.view = o.v; renderSpecies(); drawHist(); updateStats(); });
+    seg.appendChild(b);
+  }
+}
+$('addTypeBtn').addEventListener('click', () => {
+  const d = freeDef(); if (!d) return;
+  S.species.push(makeSpecies(d));
+  if (S.species.length === 2) S.view = 'each';
+  countIn(); resetHist(); renderSpecies(); refreshIfPaused();
+});
+
 function simControls(){
-  S.mu = +$('muSlider').value;
   S.frac = fracFrom(+$('sizeSlider').value);
   S.speed = +$('speedSlider').value;
-  $('muNum').textContent = (S.mu>=0?'+':'−') + Math.abs(S.mu).toFixed(2);
   $('sizeOut').textContent = (S.frac*100).toFixed(1) + '%';
   $('speedOut').textContent = S.speed.toFixed(2) + '×';
 }
-['muSlider','sizeSlider'].forEach(id => $(id).addEventListener('input', () => { simControls(); syncParts(); S.nowN=countIn(); resetHist(); if(!S.running){drawSim();drawHist();updateStats();} }));
+$('sizeSlider').addEventListener('input', () => { simControls(); countIn(); resetHist(); refreshIfPaused(); });
 $('speedSlider').addEventListener('input', simControls);
 $('clearBtn').addEventListener('click', () => { resetHist(); drawHist(); updateStats(); });
 $('playBtn').addEventListener('click', () => { S.running = !S.running; $('playBtn').textContent = S.running ? 'Pause' : 'Play'; if (S.running) last = performance.now(); });
@@ -728,7 +941,7 @@ function loop(now){
   requestAnimationFrame(loop);
 }
 
-simControls(); syncParts(); S.nowN = countIn();
+simControls(); S.species.push(makeSpecies(TYPE_DEFS[0])); S.view = S.species[0].id; renderSpecies(); countIn();
 hemeCompute(); fillStripStatic();
 layout(); hemeRender();
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(redrawAll);
