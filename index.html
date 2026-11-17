@@ -2,6 +2,24 @@
 <html lang="en-US">
 <head>
 <meta charset="utf-8">
+<!-- lang-toggle:head -->
+<script>(function(){var l='en';try{if(localStorage.getItem('lshlj82-demo-lang')==='ko')l='ko'}catch(e){}window.LANG=l;document.documentElement.dataset.lang=l;window.tr=function(en,ko){return window.LANG==='ko'&&ko!=null?ko:en};})();</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+#langBtn{position:fixed;z-index:21;top:calc(env(safe-area-inset-top,0px) + 12px);right:calc(env(safe-area-inset-right,0px) + 60px);
+  min-width:40px;height:40px;padding:0 10px;border-radius:20px;display:grid;place-items:center;cursor:pointer;font:600 14px/1 system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+  background:var(--lb-bg,rgba(255,255,255,.92));color:var(--lb-fg,#1d2633);border:1px solid var(--lb-bd,rgba(20,30,45,.18));box-shadow:0 1px 4px rgba(0,0,0,.12)}
+#langBtn:hover{border-color:currentColor}
+#langBtn:focus-visible{outline:2px solid #3b82f6;outline-offset:2px}
+:root[data-theme="dark"] #langBtn{--lb-bg:rgba(22,28,38,.92);--lb-fg:#e8eef6;--lb-bd:rgba(255,255,255,.18)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #langBtn{--lb-bg:rgba(22,28,38,.92);--lb-fg:#e8eef6;--lb-bd:rgba(255,255,255,.18)}}
+:root[data-lang="ko"] body{word-break:keep-all}
+:root[data-lang="ko"]{--sans:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;--serif:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;--ui-font:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
+:root[data-lang="ko"] body{font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif}
+
+@media print{#langBtn{display:none}}
+</style>
+<!-- lang-toggle:head-end -->
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>The Grand Canonical Ensemble, Interactively</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -181,22 +199,22 @@ button.theme-btn svg{width:20px; height:20px; fill:none; stroke:currentColor; st
 
 <div class="wrap">
 <header class="hero">
-  <p class="credit">An interactive demo created by Claude Opus 5.5, based on the lecture notes by Sang Hoon Lee (Chapter 7, Quantum Statistics)</p>
-  <h1>The grand canonical ensemble</h1>
-  <p class="lede">A small system sits against a huge reservoir at fixed temperature \(T\) and chemical potential \(\mu\). It trades energy and particles freely, so even \(N\), the number of particles inside, keeps changing. Watch it happen below.</p>
+  <p class="credit" data-k="k1">An interactive demo created by Claude Opus 5.5, based on the lecture notes by Sang Hoon Lee (Chapter 7, Quantum Statistics)</p>
+  <h1 data-k="k2">The grand canonical ensemble</h1>
+  <p class="lede" data-k="k3">A small system sits against a huge reservoir at fixed temperature \(T\) and chemical potential \(\mu\). It trades energy and particles freely, so even \(N\), the number of particles inside, keeps changing. Watch it happen below.</p>
 </header>
 
 <!-- ============ SIMULATION ============ -->
 <section id="exchange" aria-labelledby="h-exchange">
-  <h2 id="h-exchange">Particles come and go</h2>
-  <p class="prose">The box is an ideal gas reservoir. The blue-tinted square is our system: an open region with no walls. Particles inside are drawn solid; those out in the reservoir are faded. Every few frames the demo counts them and adds that count to the histogram, building up the probability distribution of \(N\). Use <em>Add particle type</em> to mix in other species, each with its own chemical potential and mass.</p>
+  <h2 id="h-exchange" data-k="k4">Particles come and go</h2>
+  <p class="prose" data-k="k5">The box is an ideal gas reservoir. The blue-tinted square is our system: an open region with no walls. Particles inside are drawn solid; those out in the reservoir are faded. Every few frames the demo counts them and adds that count to the histogram, building up the probability distribution of \(N\). Use <em>Add particle type</em> to mix in other species, each with its own chemical potential and mass.</p>
 
   <div class="fig">
     <div>
       <div class="canvas-holder"><canvas id="simCanvas" aria-label="Animation of gas particles moving between a reservoir and an open system region"></canvas></div>
       <div class="canvas-holder" style="margin-top:.75rem"><canvas id="histCanvas" aria-label="Histogram of the particle number in the system compared with the exact binomial prediction and its Poisson approximation"></canvas></div>
       <div class="legend legend-each" id="legendEach" hidden></div>
-      <div class="legend" id="legendOne">
+      <div class="legend" id="legendOne" data-k="k6">
         <span><span class="swatch" id="measSwatch" style="background:var(--o2)"></span>Measured frequency of each \(N\)</span>
         <span><span class="swatch" style="background:var(--co)"></span>Binomial prediction (exact for this box)</span>
         <span><span class="swatch dash"></span>Poisson approximation (small system)</span>
@@ -204,88 +222,88 @@ button.theme-btn svg{width:20px; height:20px; fill:none; stroke:currentColor; st
     </div>
     <div class="panel">
       <div class="ctl">
-        <label for="sizeSlider"><span class="lt">System size</span> <output id="sizeOut"></output></label>
+        <label for="sizeSlider"><span data-k="k7"><span class="lt">System size</span></span> <output id="sizeOut"></output></label>
         <input type="range" id="sizeSlider" min="0" max="1" step="0.01" value="0.45">
-        <small>Share of the box covered by the system.</small>
+        <span data-k="k8"><small>Share of the box covered by the system.</small></span>
       </div>
       <div class="ctl">
-        <label for="speedSlider"><span class="lt">Animation speed</span> <output id="speedOut"></output></label>
+        <label for="speedSlider"><span data-k="k9"><span class="lt">Animation speed</span></span> <output id="speedOut"></output></label>
         <input type="range" id="speedSlider" min="0.25" max="3" step="0.05" value="1">
       </div>
       <div class="ctl">
-        <p class="types-h">Particle types</p>
+        <p class="types-h" data-k="k10">Particle types</p>
         <div id="speciesList"></div>
-        <button id="addTypeBtn" type="button">Add particle type</button>
-        <small>For an ideal gas \(\mu = k_{\mathrm{B}}T\ln(n v_Q)\), and a dilute gas has \(n v_Q \ll 1\), so \(\mu\) is negative. Raising it by \(k_{\mathrm{B}}T\) multiplies that type's density by \(e\). Because \(v_Q \propto m^{-3/2}\), a heavier type at the same \(\mu\) is denser, \(n \propto m^{3/2}e^{\mu/k_{\mathrm{B}}T}\), and it also moves more slowly.</small>
+        <button id="addTypeBtn" type="button" data-k="k11">Add particle type</button>
+        <span data-k="k12"><small>For an ideal gas \(\mu = k_{\mathrm{B}}T\ln(n v_Q)\), and a dilute gas has \(n v_Q \ll 1\), so \(\mu\) is negative. Raising it by \(k_{\mathrm{B}}T\) multiplies that type's density by \(e\). Because \(v_Q \propto m^{-3/2}\), a heavier type at the same \(\mu\) is denser, \(n \propto m^{3/2}e^{\mu/k_{\mathrm{B}}T}\), and it also moves more slowly.</small></span>
       </div>
       <div class="ctl view-ctl" id="viewCtl" hidden>
-        <p class="types-h" id="viewLbl">Histogram shows</p>
+        <p class="types-h" id="viewLbl" data-k="k13">Histogram shows</p>
         <div class="seg" id="viewSeg" role="group" aria-labelledby="viewLbl"></div>
       </div>
       <div class="ctl btns">
         <button id="playBtn" type="button">Pause</button>
-        <button id="clearBtn" type="button">Clear histogram</button>
+        <button id="clearBtn" type="button" data-k="k14">Clear histogram</button>
       </div>
       <div class="table-wrap"><table class="stats-each" id="statsEach" aria-live="polite" hidden>
-        <thead><tr><th scope="col"><span class="vh">Type</span></th><th scope="col"><span class="m ovl">N</span> pred.</th><th scope="col"><span class="m ovl">N</span> meas.</th><th scope="col"><span class="m">σ</span> meas.</th><th scope="col"><span class="m">σ</span> bin.</th><th scope="col"><span class="m">σ</span> Poi.</th></tr></thead>
+        <thead><tr><th scope="col" data-k="k15"><span class="vh">Type</span></th><th scope="col" data-k="k16"><span class="m ovl">N</span> pred.</th><th scope="col" data-k="k17"><span class="m ovl">N</span> meas.</th><th scope="col" data-k="k18"><span class="m">σ</span> meas.</th><th scope="col" data-k="k19"><span class="m">σ</span> bin.</th><th scope="col" data-k="k20"><span class="m">σ</span> Poi.</th></tr></thead>
         <tbody id="statsEachBody"></tbody>
-        <tfoot><tr><td colspan="5">Samples</td><td id="stCountEach">0</td></tr></tfoot>
+        <tfoot><tr><td colspan="5" data-k="k21">Samples</td><td id="stCountEach">0</td></tr></tfoot>
       </table></div>
       <dl class="stats" id="statsOne" aria-live="polite">
-        <dt>Predicted \(\bar{N}\)</dt><dd id="stPred">–</dd>
-        <dt>Measured \(\bar{N}\)</dt><dd id="stMean">–</dd>
-        <dt>Measured \(\sigma_N\)</dt><dd id="stSig">–</dd>
-        <dt>Binomial \(\sigma_N\)</dt><dd id="stBin">–</dd>
-        <dt>Poisson \(\sigma_N = \sqrt{\bar{N}}\)</dt><dd id="stSqrt">–</dd>
-        <dt>Samples</dt><dd id="stCount">0</dd>
+        <dt data-k="k22">Predicted \(\bar{N}\)</dt><dd id="stPred">–</dd>
+        <dt data-k="k23">Measured \(\bar{N}\)</dt><dd id="stMean">–</dd>
+        <dt data-k="k24">Measured \(\sigma_N\)</dt><dd id="stSig">–</dd>
+        <dt data-k="k25">Binomial \(\sigma_N\)</dt><dd id="stBin">–</dd>
+        <dt data-k="k26">Poisson \(\sigma_N = \sqrt{\bar{N}}\)</dt><dd id="stSqrt">–</dd>
+        <dt data-k="k27">Samples</dt><dd id="stCount">0</dd>
       </dl>
     </div>
   </div>
-  <p class="prose note" style="margin-top:1.25rem">Give it a few seconds: the measured \(\sigma_N\) settles onto the binomial value \(\sqrt{\bar{N}(1-f)}\). The box holds a fixed number \(N_{\text{box}}\) of particles, and each one is inside the system, a fraction \(f\) of the box, independently with probability \(f\). So the count is exactly binomial, with \(\bar{N} = N_{\text{box}}f\) and \(\sigma_N^2 = \bar{N}(1-f)\), not Poisson, however long you watch. Only when the reservoir is much larger than the system (\(f \to 0\) at fixed \(\bar{N}\)) does it become Poisson with \(\sigma_N = \sqrt{\bar{N}}\), the ideal gas result derived in Problem 7.6 further down. At the largest system size the gap is visible: with 80 particles and \(f = 0.2\), \(\bar{N} = 16\) and \(\sigma_N = 3.58\), against the Poisson \(\sqrt{16} = 4\). With several types, the species don't interact, so each count is binomial on its own, and so is the total, since every particle sees the same \(f\). Mass and \(\mu\) only set how many particles a type has and, through the speed, how quickly its histogram fills. <em>Side by side</em> draws every type's measured histogram together with its own binomial curve (solid) and Poisson approximation (dashed).</p>
+  <p class="prose note" style="margin-top:1.25rem" data-k="k28">Give it a few seconds: the measured \(\sigma_N\) settles onto the binomial value \(\sqrt{\bar{N}(1-f)}\). The box holds a fixed number \(N_{\text{box}}\) of particles, and each one is inside the system, a fraction \(f\) of the box, independently with probability \(f\). So the count is exactly binomial, with \(\bar{N} = N_{\text{box}}f\) and \(\sigma_N^2 = \bar{N}(1-f)\), not Poisson, however long you watch. Only when the reservoir is much larger than the system (\(f \to 0\) at fixed \(\bar{N}\)) does it become Poisson with \(\sigma_N = \sqrt{\bar{N}}\), the ideal gas result derived in Problem 7.6 further down. At the largest system size the gap is visible: with 80 particles and \(f = 0.2\), \(\bar{N} = 16\) and \(\sigma_N = 3.58\), against the Poisson \(\sqrt{16} = 4\). With several types, the species don't interact, so each count is binomial on its own, and so is the total, since every particle sees the same \(f\). Mass and \(\mu\) only set how many particles a type has and, through the speed, how quickly its histogram fills. <em>Side by side</em> draws every type's measured histogram together with its own binomial curve (solid) and Poisson approximation (dashed).</p>
 </section>
 
 <!-- ============ GIBBS FACTOR ============ -->
 <section id="gibbs" aria-labelledby="h-gibbs">
-  <h2 id="h-gibbs">The Gibbs factor</h2>
+  <h2 id="h-gibbs" data-k="k29">The Gibbs factor</h2>
   <div class="prose">
-    <p>As in the canonical case, the probability of a system state is proportional to the number of reservoir microstates compatible with it:</p>
+    <p data-k="k30">As in the canonical case, the probability of a system state is proportional to the number of reservoir microstates compatible with it:</p>
     <div class="eq">\[ \frac{P(s_2)}{P(s_1)} = \frac{\Omega_R(s_2)}{\Omega_R(s_1)} = e^{[S_R(s_2) - S_R(s_1)]/k_{\mathrm{B}}} \]</div>
-    <p>The difference now is that particles can cross the boundary, so the \(\mu\) term in the thermodynamic identity stays (the \(P\,dV\) term is still negligible):</p>
+    <p data-k="k31">The difference now is that particles can cross the boundary, so the \(\mu\) term in the thermodynamic identity stays (the \(P\,dV\) term is still negligible):</p>
     <div class="eq">\[ dS_R = \frac{1}{T}\left(dU_R + P\,dV_R - \mu\,dN_R\right) \]</div>
-    <p>With \(dU_R = -dE\) and \(dN_R = -dN\), each state gets a weight called the Gibbs factor, and normalizing gives the grand partition function, or Gibbs sum:</p>
+    <p data-k="k32">With \(dU_R = -dE\) and \(dN_R = -dN\), each state gets a weight called the Gibbs factor, and normalizing gives the grand partition function, or Gibbs sum:</p>
     <div class="eq"><span class="boxed">\( \displaystyle P(s) = \frac{1}{\mathcal{Z}}\, e^{-[E(s) - \mu N(s)]/k_{\mathrm{B}}T} \)</span></div>
     <div class="eq">\[ \mathcal{Z} = \sum_s e^{-[E(s) - \mu N(s)]/k_{\mathrm{B}}T} \]</div>
-    <p>The sum runs over every state of the system, including every possible value of \(N\). With several particle species, \(\mu N\) becomes \(\mu_A N_A + \mu_B N_B + \cdots\), which is exactly what we need for blood.</p>
+    <p data-k="k33">The sum runs over every state of the system, including every possible value of \(N\). With several particle species, \(\mu N\) becomes \(\mu_A N_A + \mu_B N_B + \cdots\), which is exactly what we need for blood.</p>
   </div>
 </section>
 
 <!-- ============ HEME ============ -->
 <section id="heme" aria-labelledby="h-heme">
-  <h2 id="h-heme">Why carbon monoxide wins</h2>
-  <p class="prose">A single heme site in hemoglobin is a tiny grand canonical system. It can be empty, hold one O<sub>2</sub> (binding energy \(\varepsilon\)), or hold one CO (binding energy \(\varepsilon'\)). Near the lungs, \(\mu\) for oxygen is about \(-0.6\ \mathrm{eV}\). CO binds more tightly, so even a trace of it in the air steals sites.</p>
+  <h2 id="h-heme" data-k="k34">Why carbon monoxide wins</h2>
+  <p class="prose" data-k="k35">A single heme site in hemoglobin is a tiny grand canonical system. It can be empty, hold one O<sub>2</sub> (binding energy \(\varepsilon\)), or hold one CO (binding energy \(\varepsilon'\)). Near the lungs, \(\mu\) for oxygen is about \(-0.6\ \mathrm{eV}\). CO binds more tightly, so even a trace of it in the air steals sites.</p>
 
   <div class="fig">
     <div>
       <div class="states">
         <div class="state">
           <svg viewBox="0 0 150 70" aria-hidden="true"><rect x="0" y="40" width="150" height="30" fill="var(--band)"/><path d="M0 40 H57 a18 15 0 0 0 36 0 H150" fill="none" stroke="var(--muted)" stroke-width="1.5"/><text x="75" y="67" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--muted)">Fe<tspan dy="-4" font-size="7">2+</tspan></text></svg>
-          <h4>Unoccupied</h4>
-          <div class="row"><span>Gibbs factor</span><b id="g0">1</b></div>
-          <div class="row"><span>Probability</span><b id="p0">–</b></div>
+          <h4 data-k="k36">Unoccupied</h4>
+          <div class="row" ><span data-k="k37">Gibbs factor</span><b id="g0">1</b></div>
+          <div class="row" ><span data-k="k38">Probability</span><b id="p0">–</b></div>
           <div class="bar"><i id="b0" style="background:var(--empty)"></i></div>
         </div>
         <div class="state">
           <svg viewBox="0 0 150 70" aria-hidden="true"><rect x="0" y="40" width="150" height="30" fill="var(--band)"/><path d="M0 40 H57 a18 15 0 0 0 36 0 H150" fill="none" stroke="var(--muted)" stroke-width="1.5"/><circle cx="75" cy="36" r="11" fill="var(--o2)"/><circle cx="89" cy="18" r="11" fill="var(--o2)" opacity=".75"/><text x="75" y="40" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">O</text><text x="89" y="22" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">O</text><text x="75" y="67" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--muted)">Fe<tspan dy="-4" font-size="7">2+</tspan></text></svg>
-          <h4>Holding O<sub>2</sub></h4>
-          <div class="row"><span>Gibbs factor</span><b id="gO">–</b></div>
-          <div class="row"><span>Probability</span><b id="pO">–</b></div>
+          <h4 data-k="k39">Holding O<sub>2</sub></h4>
+          <div class="row" ><span data-k="k40">Gibbs factor</span><b id="gO">–</b></div>
+          <div class="row" ><span data-k="k41">Probability</span><b id="pO">–</b></div>
           <div class="bar"><i id="bO" style="background:var(--o2)"></i></div>
         </div>
         <div class="state">
           <svg viewBox="0 0 150 70" aria-hidden="true"><rect x="0" y="40" width="150" height="30" fill="var(--band)"/><path d="M0 40 H57 a18 15 0 0 0 36 0 H150" fill="none" stroke="var(--muted)" stroke-width="1.5"/><circle cx="75" cy="36" r="11" fill="var(--co)"/><circle cx="89" cy="18" r="11" fill="var(--co)" opacity=".75"/><text x="75" y="40" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">C</text><text x="89" y="22" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--surface)">O</text><text x="75" y="67" text-anchor="middle" font-family="var(--sans)" font-size="10" fill="var(--muted)">Fe<tspan dy="-4" font-size="7">2+</tspan></text></svg>
-          <h4>Holding CO</h4>
-          <div class="row"><span>Gibbs factor</span><b id="gC">–</b></div>
-          <div class="row"><span>Probability</span><b id="pC">–</b></div>
+          <h4 data-k="k42">Holding CO</h4>
+          <div class="row" ><span data-k="k43">Gibbs factor</span><b id="gC">–</b></div>
+          <div class="row" ><span data-k="k44">Probability</span><b id="pC">–</b></div>
           <div class="bar"><i id="bC" style="background:var(--co)"></i></div>
         </div>
       </div>
@@ -293,19 +311,19 @@ button.theme-btn svg{width:20px; height:20px; fill:none; stroke:currentColor; st
       <div class="eq" style="font-size:1.05rem">\( \mathcal{Z} = {} \) <span id="zVal"></span></div>
 
       <div class="canvas-holder"><canvas id="stripCanvas" aria-label="One heme site sampled over time, showing which state it is in"></canvas></div>
-      <p class="cap">One site, sampled again and again. Each cell is a snapshot: gray empty, blue O<sub>2</sub>, red CO.</p>
+      <p class="cap" data-k="k45">One site, sampled again and again. Each cell is a snapshot: gray empty, blue O<sub>2</sub>, red CO.</p>
 
       <div class="readout">
-        <div><div class="big" id="sat">–</div><div class="note" style="margin:0">of sites carry oxygen</div></div>
+        <div><div class="big" id="sat">–</div><div class="note" style="margin:0" data-k="k46">of sites carry oxygen</div></div>
         <div class="verdict" id="verdict"></div>
       </div>
       <div class="table-wrap">
       <table class="scale" aria-label="Oxygen saturation reference ranges shown in the lecture">
         <tbody>
-          <tr><td>95 to 100%</td><td>Normal range</td></tr>
-          <tr><td>91 to 94%</td><td>Mild hypoxemia, worth watching</td></tr>
-          <tr><td>81 to 90%</td><td>Hypoxemia with difficulty breathing</td></tr>
-          <tr><td>80% or below</td><td>Severe hypoxemia</td></tr>
+          <tr><td data-k="k47">95 to 100%</td><td data-k="k48">Normal range</td></tr>
+          <tr><td data-k="k49">91 to 94%</td><td data-k="k50">Mild hypoxemia, worth watching</td></tr>
+          <tr><td data-k="k51">81 to 90%</td><td data-k="k52">Hypoxemia with difficulty breathing</td></tr>
+          <tr><td data-k="k53">80% or below</td><td data-k="k54">Severe hypoxemia</td></tr>
         </tbody>
       </table>
       </div>
@@ -313,59 +331,59 @@ button.theme-btn svg{width:20px; height:20px; fill:none; stroke:currentColor; st
 
     <div class="panel">
       <div class="ctl btns">
-        <button type="button" id="presetO2">O<sub>2</sub> only</button>
-        <button type="button" id="presetCO">CO at 1/100 of O<sub>2</sub></button>
+        <button type="button" id="presetO2" data-k="k55">O<sub>2</sub> only</button>
+        <button type="button" id="presetCO" data-k="k56">CO at 1/100 of O<sub>2</sub></button>
       </div>
       <div class="ctl">
-        <label for="tSlider"><span class="lt">Temperature \(T\)</span> <output><span id="tNum"></span> K</output></label>
+        <label for="tSlider"><span data-k="k57"><span class="lt">Temperature \(T\)</span></span> <output><span id="tNum"></span> K</output></label>
         <input type="range" id="tSlider" min="250" max="400" step="1" value="310">
-        <small>\(k_{\mathrm{B}}T = {}\)<span id="kTNum"></span> meV</small>
+        <span data-k="k58"><small>\(k_{\mathrm{B}}T = {}\)<span id="kTNum"></span> meV</small></span>
       </div>
       <div class="ctl">
-        <label for="hmuSlider"><span class="lt">O<sub>2</sub> chemical potential \(\mu\)</span> <output id="hmuOut"></output></label>
+        <label for="hmuSlider"><span data-k="k59"><span class="lt">O<sub>2</sub> chemical potential \(\mu\)</span></span> <output id="hmuOut"></output></label>
         <input type="range" id="hmuSlider" min="-0.9" max="-0.4" step="0.005" value="-0.6">
-        <small>Lower values mean thinner air, as at high altitude or deep in tissue.</small>
+        <span data-k="k60"><small>Lower values mean thinner air, as at high altitude or deep in tissue.</small></span>
       </div>
       <div class="ctl">
-        <label for="epsSlider"><span class="lt">O<sub>2</sub> binding energy \(\varepsilon\)</span> <output id="epsOut"></output></label>
+        <label for="epsSlider"><span data-k="k61"><span class="lt">O<sub>2</sub> binding energy \(\varepsilon\)</span></span> <output id="epsOut"></output></label>
         <input type="range" id="epsSlider" min="-1" max="-0.4" step="0.005" value="-0.7">
       </div>
       <div class="ctl">
-        <label class="check" for="coCheck" style="justify-content:flex-start"><input type="checkbox" id="coCheck"> Carbon monoxide present</label>
+        <label class="check" for="coCheck" style="justify-content:flex-start"><input type="checkbox" id="coCheck"> <span data-k="k62">Carbon monoxide present</span></label>
       </div>
       <div class="ctl">
-        <label for="ratioSlider"><span class="lt">CO is rarer than O<sub>2</sub> by</span> <output id="ratioOut"></output></label>
+        <label for="ratioSlider"><span data-k="k63"><span class="lt">CO is rarer than O<sub>2</sub> by</span></span> <output id="ratioOut"></output></label>
         <input type="range" id="ratioSlider" min="1" max="5" step="0.05" value="2">
-        <small>Then \(\mu' = \mu - k_{\mathrm{B}}T \ln(\text{ratio}) = {}\)<span id="mucOut"></span> eV</small>
+        <span data-k="k64"><small>Then \(\mu' = \mu - k_{\mathrm{B}}T \ln(\text{ratio}) = {}\)<span id="mucOut"></span> eV</small></span>
       </div>
       <div class="ctl">
-        <label for="epscSlider"><span class="lt">CO binding energy \(\varepsilon'\)</span> <output id="epscOut"></output></label>
+        <label for="epscSlider"><span data-k="k65"><span class="lt">CO binding energy \(\varepsilon'\)</span></span> <output id="epscOut"></output></label>
         <input type="range" id="epscSlider" min="-1.1" max="-0.5" step="0.005" value="-0.85">
       </div>
     </div>
   </div>
-  <p class="prose note" style="margin-top:1.5rem">This is the lecture’s one-site model; real hemoglobin has four cooperating sites. Also, an ordinary two-wavelength pulse oximeter (like a smartwatch) cannot tell CO-bound hemoglobin from O<sub>2</sub>-bound hemoglobin, so it would still read near normal during CO poisoning. That is part of what makes CO so dangerous.</p>
+  <p class="prose note" style="margin-top:1.5rem" data-k="k66">This is the lecture’s one-site model; real hemoglobin has four cooperating sites. Also, an ordinary two-wavelength pulse oximeter (like a smartwatch) cannot tell CO-bound hemoglobin from O<sub>2</sub>-bound hemoglobin, so it would still read near normal during CO poisoning. That is part of what makes CO so dangerous.</p>
 </section>
 
 <!-- ============ FLUCTUATIONS ============ -->
 <section id="fluct" aria-labelledby="h-fluct">
-  <h2 id="h-fluct">How big are the fluctuations?</h2>
+  <h2 id="h-fluct" data-k="k67">How big are the fluctuations?</h2>
   <div class="prose">
-    <p>Problem 7.6. Differentiating the Gibbs sum with respect to \(\mu\) pulls down a factor of \(\beta N(s)\) each time, so with \(\beta = 1/k_{\mathrm{B}}T\):</p>
+    <p data-k="k68">Problem 7.6. Differentiating the Gibbs sum with respect to \(\mu\) pulls down a factor of \(\beta N(s)\) each time, so with \(\beta = 1/k_{\mathrm{B}}T\):</p>
     <div class="eq multi"><span class="eqp">\( \displaystyle \bar{N} = \frac{k_{\mathrm{B}}T}{\mathcal{Z}}\,\frac{\partial \mathcal{Z}}{\partial \mu}, \)</span><span class="eqp">\( \displaystyle \overline{N^2} = \frac{(k_{\mathrm{B}}T)^2}{\mathcal{Z}}\,\frac{\partial^2 \mathcal{Z}}{\partial \mu^2} \)</span></div>
-    <p>Subtracting \(\bar{N}^2\) and comparing with \(\partial\bar{N}/\partial\mu\) gives a compact result:</p>
+    <p data-k="k69">Subtracting \(\bar{N}^2\) and comparing with \(\partial\bar{N}/\partial\mu\) gives a compact result:</p>
     <div class="eq"><span class="boxed">\( \displaystyle \sigma_N = \sqrt{\overline{N^2} - \bar{N}^2} = \sqrt{k_{\mathrm{B}}T \,\frac{\partial \bar{N}}{\partial \mu}} \)</span></div>
-    <p>For an ideal gas, \(\mu = -k_{\mathrm{B}}T \ln\!\left(V Z_{\text{int}} / N v_Q\right)\), so \(\partial\mu/\partial N = k_{\mathrm{B}}T/N\) and therefore \(\sigma_N = \sqrt{\bar{N}}\). The relative spread is \(\sigma_N/\bar{N} = 1/\sqrt{\bar{N}}\): large for a handful of particles, utterly invisible for a macroscopic sample.</p>
+    <p data-k="k70">For an ideal gas, \(\mu = -k_{\mathrm{B}}T \ln\!\left(V Z_{\text{int}} / N v_Q\right)\), so \(\partial\mu/\partial N = k_{\mathrm{B}}T/N\) and therefore \(\sigma_N = \sqrt{\bar{N}}\). The relative spread is \(\sigma_N/\bar{N} = 1/\sqrt{\bar{N}}\): large for a handful of particles, utterly invisible for a macroscopic sample.</p>
   </div>
 
   <div class="fig">
     <div>
       <div class="canvas-holder"><canvas id="bellCanvas" aria-label="Distribution of N plotted from 0 to twice the mean"></canvas></div>
-      <p class="cap">Distribution of \(N\), drawn from \(0\) to \(2\bar{N}\) so the relative width is what you see.</p>
+      <p class="cap" data-k="k71">Distribution of \(N\), drawn from \(0\) to \(2\bar{N}\) so the relative width is what you see.</p>
     </div>
     <div class="panel">
       <div class="ctl">
-        <label for="nSlider"><span class="lt">Mean particle number \(\bar{N}\)</span> <output id="nOut"></output></label>
+        <label for="nSlider"><span data-k="k72"><span class="lt">Mean particle number \(\bar{N}\)</span></span> <output id="nOut"></output></label>
         <input type="range" id="nSlider" min="0" max="24" step="0.1" value="1">
       </div>
       <dl class="stats">
@@ -375,45 +393,45 @@ button.theme-btn svg{width:20px; height:20px; fill:none; stroke:currentColor; st
     </div>
   </div>
 
-  <h3>It works beyond the ideal gas, too</h3>
-  <p class="prose">The heme site above holds either 0 or 1 molecule. With only O<sub>2</sub> around, \(\bar{N} = p\), and directly from the Gibbs sum the variance is \(\sigma_N^2 = p - p^2\). The general formula agrees: at the current settings (O<sub>2</sub> only), \(\bar{N} = {}\)<span id="c1">–</span>, \(p - p^2 = {}\)<span id="c2">–</span>, and \(k_{\mathrm{B}}T\,\partial\bar{N}/\partial\mu = {}\)<span id="c3">–</span>.</p>
+  <h3 data-k="k73">It works beyond the ideal gas, too</h3>
+  <p class="prose" data-k="k74">The heme site above holds either 0 or 1 molecule. With only O<sub>2</sub> around, \(\bar{N} = p\), and directly from the Gibbs sum the variance is \(\sigma_N^2 = p - p^2\). The general formula agrees: at the current settings (O<sub>2</sub> only), \(\bar{N} = {}\)<span id="c1">–</span>, \(p - p^2 = {}\)<span id="c2">–</span>, and \(k_{\mathrm{B}}T\,\partial\bar{N}/\partial\mu = {}\)<span id="c3">–</span>.</p>
 </section>
 
 <!-- ============ GRAND FREE ENERGY ============ -->
 <section id="phi" aria-labelledby="h-phi">
-  <h2 id="h-phi">The grand free energy</h2>
+  <h2 id="h-phi" data-k="k75">The grand free energy</h2>
   <div class="prose">
-    <p>Problem 7.7. The grand free energy \(\Phi \equiv U - TS - \mu N\) satisfies \(d\Phi = -P\,dV - S\,dT - N\,d\mu\), so \(N = -(\partial\Phi/\partial\mu)_{T,V}\). The candidate \(\tilde{\Phi} = -k_{\mathrm{B}}T\ln\mathcal{Z}\) obeys the same equation, since \((\partial\tilde{\Phi}/\partial\mu)_{T,V} = -\bar{N}\). At \(\mu = 0\) the Gibbs sum reduces to the ordinary partition function \(Z\), where \(-k_{\mathrm{B}}T\ln Z = F = \Phi\). Same differential equation, same starting point:</p>
+    <p data-k="k76">Problem 7.7. The grand free energy \(\Phi \equiv U - TS - \mu N\) satisfies \(d\Phi = -P\,dV - S\,dT - N\,d\mu\), so \(N = -(\partial\Phi/\partial\mu)_{T,V}\). The candidate \(\tilde{\Phi} = -k_{\mathrm{B}}T\ln\mathcal{Z}\) obeys the same equation, since \((\partial\tilde{\Phi}/\partial\mu)_{T,V} = -\bar{N}\). At \(\mu = 0\) the Gibbs sum reduces to the ordinary partition function \(Z\), where \(-k_{\mathrm{B}}T\ln Z = F = \Phi\). Same differential equation, same starting point:</p>
     <div class="eq"><span class="boxed">\( \displaystyle \Phi = -k_{\mathrm{B}}T \ln \mathcal{Z} \)</span></div>
-    <p>Below, \(\Phi(\mu)\) is plotted for the O<sub>2</sub>-only heme site, using the temperature and binding energy set in the hemoglobin section. Slide \(\mu\) and compare the slope of the tangent with the occupancy computed from the Gibbs sum.</p>
+    <p data-k="k77">Below, \(\Phi(\mu)\) is plotted for the O<sub>2</sub>-only heme site, using the temperature and binding energy set in the hemoglobin section. Slide \(\mu\) and compare the slope of the tangent with the occupancy computed from the Gibbs sum.</p>
   </div>
 
   <div class="ctl" style="max-width:32rem;margin-top:1.25rem">
-    <label for="pmuSlider"><span class="lt">Chemical potential \(\mu\)</span> <output id="pmuOut"></output></label>
+    <label for="pmuSlider"><span data-k="k78"><span class="lt">Chemical potential \(\mu\)</span></span> <output id="pmuOut"></output></label>
     <input type="range" id="pmuSlider" min="-1.1" max="-0.3" step="0.005" value="-0.6">
   </div>
   <div class="two">
     <div>
       <div class="canvas-holder"><canvas id="phiCanvas" aria-label="Grand free energy as a function of chemical potential, with tangent line"></canvas></div>
-      <p class="cap">\(\Phi = -k_{\mathrm{B}}T\ln\!\left(1 + e^{-(\varepsilon-\mu)/k_{\mathrm{B}}T}\right)\), in eV, with the tangent at the chosen \(\mu\).</p>
+      <p class="cap" data-k="k79">\(\Phi = -k_{\mathrm{B}}T\ln\!\left(1 + e^{-(\varepsilon-\mu)/k_{\mathrm{B}}T}\right)\), in eV, with the tangent at the chosen \(\mu\).</p>
     </div>
     <div>
       <div class="canvas-holder"><canvas id="nbarCanvas" aria-label="Average occupancy as a function of chemical potential"></canvas></div>
-      <p class="cap">Occupancy \(\bar{N}\) from the Gibbs sum. It switches on as \(\mu\) passes \(\varepsilon\).</p>
+      <p class="cap" data-k="k80">Occupancy \(\bar{N}\) from the Gibbs sum. It switches on as \(\mu\) passes \(\varepsilon\).</p>
     </div>
   </div>
   <dl class="stats" style="max-width:32rem;margin-top:1rem">
-    <dt>\(\Phi\) at this \(\mu\)</dt><dd id="phiVal">–</dd>
-    <dt>\(-\partial\Phi/\partial\mu\) (tangent slope)</dt><dd id="slopeVal">–</dd>
-    <dt>\(\bar{N}\) from the Gibbs sum</dt><dd id="nbarVal">–</dd>
+    <dt data-k="k81">\(\Phi\) at this \(\mu\)</dt><dd id="phiVal">–</dd>
+    <dt data-k="k82">\(-\partial\Phi/\partial\mu\) (tangent slope)</dt><dd id="slopeVal">–</dd>
+    <dt data-k="k83">\(\bar{N}\) from the Gibbs sum</dt><dd id="nbarVal">–</dd>
   </dl>
 </section>
 </div>
 
 <footer>
   <div class="wrap">
-    <p>Created by Claude Opus 5.5, based on the lecture notes by Sang Hoon Lee on quantum statistics (Section 7.1, the Gibbs factor, with Problems 7.6 and 7.7).</p>
-    <p>Physical constants: \(k_{\mathrm{B}} = 8.617 \times 10^{-5}\ \mathrm{eV/K}\). Numbers in the hemoglobin model are the illustrative values from the lecture. Equations typeset with MathJax.</p>
+    <p data-k="k84">Created by Claude Opus 5.5, based on the lecture notes by Sang Hoon Lee on quantum statistics (Section 7.1, the Gibbs factor, with Problems 7.6 and 7.7).</p>
+    <p data-k="k85">Physical constants: \(k_{\mathrm{B}} = 8.617 \times 10^{-5}\ \mathrm{eV/K}\). Numbers in the hemoglobin model are the illustrative values from the lecture. Equations typeset with MathJax.</p>
   </div>
 </footer>
 
@@ -443,8 +461,8 @@ function fit(cv, LW, LH){
   ctx.setTransform(s,0,0,s,0,0);
   return ctx;
 }
-const SANS = '"Instrument Sans", system-ui, sans-serif';
-const SERIF = '"Newsreader", Georgia, serif';
+const SANS = '"Instrument Sans", "IBM Plex Sans KR", system-ui, sans-serif';
+const SERIF = '"Newsreader", "IBM Plex Sans KR", Georgia, serif';
 
 // Draws "prefix" + italic N with a proper overbar (N-bar) on a canvas.
 function drawBarN(c, x, y, size, prefix, align){
@@ -587,19 +605,19 @@ function drawSim(){
   for (const sp of S.species){ c.fillStyle = C[sp.tok]; const r = radius(sp,true);
     for (const p of sp.parts) if (inWin(p,w)){ c.beginPath(); c.arc(p.x,p.y,r,0,7); c.fill(); } }
   c.fillStyle = C.ink; c.font = '500 20px '+SERIF;
-  c.fillText('Reservoir', 22, 36);
+  c.fillText(tr('Reservoir','열원'), 22, 36);
   c.fillStyle = C.muted;
   c.font='italic 18px '+SERIF; c.fillText('T', 22, 60); let lx = 22 + c.measureText('T').width;
   c.font='18px '+SERIF; c.fillText(',', lx, 60); lx += c.measureText(', ').width;
   c.font='italic 18px '+SERIF; c.fillText('μ', lx, 60); lx += c.measureText('μ').width;
-  c.font='16px '+SANS; c.fillText(' fixed', lx + 2, 60);
+  c.font='16px '+SANS; c.fillText(tr(' fixed',' 고정'), lx + 2, 60);
   // System label with one count per type
   const ly = w.y > 30 ? w.y - 10 : w.y + w.a + 20;
   const single = S.species.length === 1;
   // lay the label out once to measure it, then draw it, shifted left if it would run off the canvas
   const pieces = [];
   let x = 0;
-  c.font = '600 15px '+SANS; pieces.push({t:'System', f:c.font, col:C.o2, x, dy:0}); x += c.measureText('System').width + 14;
+  c.font = '600 15px '+SANS; pieces.push({t:tr('System','계'), f:c.font, col:C.o2, x, dy:0}); x += c.measureText(tr('System','계')).width + 14;
   for (const sp of S.species){
     const col = C[sp.tok];
     c.font = 'italic 17px '+SERIF; pieces.push({t:'N', f:c.font, col, x, dy:0}); x += c.measureText('N').width;
@@ -625,7 +643,7 @@ function histAxes(c, W, H, L, R, T, B, kmax, bw, X){
   const stepL = Math.max(1, Math.ceil(kmax/12));
   for (let k=0;k<=kmax;k+=stepL) c.fillText(k, X(k)+bw/2, H-B+18);
   c.textAlign='left'; drawSym(c, W-R-14, H-B+30, 15, 'N', '');
-  c.save(); c.translate(16, (H-B+T)/2); c.rotate(-Math.PI/2); c.textAlign='center'; c.font='13px '+SANS; c.fillText('probability', 0, 0); c.restore();
+  c.save(); c.translate(16, (H-B+T)/2); c.rotate(-Math.PI/2); c.textAlign='center'; c.font='13px '+SANS; c.fillText(tr('probability','확률'), 0, 0); c.restore();
   c.textAlign='left';
 }
 // Every type at once: grouped bars (measured) plus one binomial curve (solid) and its Poisson approximation
@@ -750,11 +768,11 @@ function renderSpecies(){
     card.className = 'species'; card.style.setProperty('--sc', 'var(--'+sp.tok+')');
     const mid = 'mu'+sp.id, aid = 'ma'+sp.id;
     card.innerHTML =
-      '<div class="species-head"><span><span class="swatch"></span>Type '+sp.letter+'</span>' +
-        (single ? '' : '<button type="button" class="rm" aria-label="Remove type '+sp.letter+'">Remove</button>') + '</div>' +
+      '<div class="species-head"><span><span class="swatch"></span>'+tr('Type ','종류 ')+sp.letter+'</span>' +
+        (single ? '' : '<button type="button" class="rm" aria-label="'+tr('Remove type ','종류 지우기 ')+sp.letter+'">'+tr('Remove','지우기')+'</button>') + '</div>' +
       '<div class="ctl"><label for="'+mid+'"><span class="lt"><span class="m">μ</span></span> <output><span class="muv">'+muText(sp.mu)+'</span> '+KBT+'</output></label>' +
         '<input type="range" id="'+mid+'" min="'+MU_MIN+'" max="'+muCap(sp.mass)+'" step="'+MU_STEP+'" value="'+sp.mu+'"></div>' +
-      '<div class="ctl"><label for="'+aid+'"><span class="lt">Mass</span> <output class="mav">'+sp.mass.toFixed(2)+' <span class="m">m</span><sub>0</sub></output></label>' +
+      '<div class="ctl"><label for="'+aid+'"><span class="lt">'+tr('Mass','질량')+'</span> <output class="mav">'+sp.mass.toFixed(2)+' <span class="m">m</span><sub>0</sub></output></label>' +
         '<input type="range" id="'+aid+'" min="0" max="1" step="0.01" value="'+massTo(sp.mass).toFixed(3)+'"></div>';
     card.querySelector('#'+mid).addEventListener('input', e => {
       sp.mu = +e.target.value; card.querySelector('.muv').textContent = muText(sp.mu);
@@ -783,12 +801,12 @@ function renderSpecies(){
   const seg = $('viewSeg'); seg.innerHTML = '';
   $('viewCtl').hidden = single;
   if (single) S.view = S.species[0].id;
-  const opts = single ? [] : [{v:'each', t:'Side by side'}];
-  for (const sp of S.species) opts.push({v:sp.id, t:'Type '+sp.letter});
-  if (!single) opts.push({v:'all', t:'Total N'});
+  const opts = single ? [] : [{v:'each', t:tr('Side by side','나란히')}];
+  for (const sp of S.species) opts.push({v:sp.id, t:tr('Type ','종류 ')+sp.letter});
+  if (!single) opts.push({v:'all', t:tr('Total N','전체 N')});
   $('legendEach').innerHTML = S.species.map(sp =>
-      '<span><span class="swatch" style="background:var(--'+sp.tok+')"></span>Type '+sp.letter+'</span>').join('') +
-    '<span>Faded bars: measured frequency. Solid line: binomial prediction for that type. Dashed: its Poisson approximation.</span>';
+      '<span><span class="swatch" style="background:var(--'+sp.tok+')"></span>'+tr('Type ','종류 ')+sp.letter+'</span>').join('') +
+    '<span>'+tr('Faded bars: measured frequency. Solid line: binomial prediction for that type. Dashed: its Poisson approximation.','흐린 막대: 측정한 빈도. 실선: 그 종류의 이항 분포 예측. 점선: 그 푸아송 근사.')+'</span>';
   for (const o of opts){
     const b = document.createElement('button'); b.type = 'button'; b.textContent = o.t;
     b.setAttribute('aria-pressed', String(S.view === o.v));
@@ -812,8 +830,8 @@ function simControls(){
 $('sizeSlider').addEventListener('input', () => { simControls(); countIn(); resetHist(); refreshIfPaused(); });
 $('speedSlider').addEventListener('input', simControls);
 $('clearBtn').addEventListener('click', () => { resetHist(); drawHist(); updateStats(); });
-$('playBtn').addEventListener('click', () => { S.running = !S.running; motionPaused = false; $('playBtn').textContent = S.running ? 'Pause' : 'Play'; if (!S.running) refreshIfPaused(); kick(); });
-$('playBtn').textContent = S.running ? 'Pause' : 'Play';
+$('playBtn').addEventListener('click', () => { S.running = !S.running; motionPaused = false; $('playBtn').textContent = S.running ? tr('Pause','일시 정지') : tr('Play','재생'); if (!S.running) refreshIfPaused(); kick(); });
+$('playBtn').textContent = S.running ? tr('Pause','일시 정지') : tr('Play','재생');
 
 /* ================= HEME ================= */
 const Hm = {T:310, mu:-0.6, eps:-0.7, epsc:-0.85, co:false, r:2};
@@ -849,7 +867,7 @@ function hemeRender(){
   rows.forEach(r => r.classList.remove('on'));
   const idx = s >= 95 ? 0 : s >= 91 ? 1 : s >= 81 ? 2 : 3;
   rows[idx].classList.add('on');
-  const msgs = ['Healthy. Oxygen fills nearly every site.', 'Slightly low.', 'Low enough to cause breathing trouble.', Hm.co && h.pC > h.pO ? 'Dangerous: CO holds more sites than oxygen does.' : 'Dangerously low.'];
+  const msgs = [tr('Healthy. Oxygen fills nearly every site.','건강함. 산소가 거의 모든 자리를 채웁니다.'), tr('Slightly low.','약간 낮음.'), tr('Low enough to cause breathing trouble.','호흡 곤란을 일으킬 만큼 낮음.'), Hm.co && h.pC > h.pO ? tr('Dangerous: CO holds more sites than oxygen does.','위험: CO가 산소보다 더 많은 자리를 차지합니다.') : tr('Dangerously low.','위험할 만큼 낮음.')];
   $('verdict').textContent = msgs[idx];
   // fluctuation check line
   const p = h.gO/(1+h.gO);
@@ -984,6 +1002,7 @@ function layout(){
   redrawAll();
 }
 function redrawAll(){ drawSim(); drawHist(); updateStats(); drawStrip(); fluctRender(); phiRender(); }
+window.addEventListener('langchange', () => { $('playBtn').textContent = S.running ? tr('Pause','일시 정지') : tr('Play','재생'); renderSpecies(); redrawAll(); if (typeof hemeRender==='function') hemeRender(); });
 let resizeT; window.addEventListener('resize', () => { clearTimeout(resizeT); resizeT = setTimeout(layout, 80); });
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { readColors(); redrawAll(); });
 new MutationObserver(() => { readColors(); redrawAll(); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
@@ -1009,7 +1028,7 @@ motionMQ.addEventListener('change', e => {
     if (motionPaused){ S.running = true; motionPaused = false; }
     stripTimerRunning = true;
   }
-  $('playBtn').textContent = S.running ? 'Pause' : 'Play';
+  $('playBtn').textContent = S.running ? tr('Pause','일시 정지') : tr('Play','재생');
   refreshIfPaused(); kick();
 });
 function loop(now){
@@ -1041,13 +1060,133 @@ kick();
   const SUN = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>';
   const MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/></svg>';
   const current = () => root.dataset.theme || (mq.matches ? "dark" : "light");
-  const sync = () => { const dark = current() === "dark", label = dark ? "Switch to light mode" : "Switch to dark mode";
+  const sync = () => { const dark = current() === "dark", label = dark ? tr("Switch to light mode","밝은 화면으로 전환") : tr("Switch to dark mode","어두운 화면으로 전환");
     btn.innerHTML = dark ? SUN : MOON; btn.setAttribute("aria-label", label); btn.title = label; };
   btn.addEventListener("click", () => { const next = current() === "dark" ? "light" : "dark"; root.dataset.theme = next;
     try { localStorage.setItem("netsci-theme", next); } catch (e) {} sync(); });
   mq.addEventListener("change", sync);
+  window.addEventListener("langchange", sync);
   sync();
 })();
 </script>
+<!-- lang-toggle:body -->
+<script>
+window.I18N_KO={
+"__title": "큰 바른틀 앙상블",
+"k1": "이상훈 교수의 강의 노트(7장, 양자 통계)를 바탕으로 Claude Opus 5.5가 만든 인터랙티브 데모",
+"k2": "큰 바른틀 앙상블",
+"k3": "작은 계가 온도 \\(T\\)와 화학 퍼텐셜 \\(\\mu\\)가 고정된 거대한 열원에 맞닿아 있습니다. 에너지와 입자를 자유롭게 주고받으므로, 안에 있는 입자 수 \\(N\\)조차 계속 바뀝니다. 아래에서 그 모습을 보세요.",
+"k4": "입자가 들어오고 나간다",
+"k5": "상자는 이상 기체 열원입니다. 파란 색조의 정사각형이 우리의 계로, 벽이 없는 열린 영역입니다. 안에 있는 입자는 진하게, 바깥 열원에 있는 입자는 흐리게 그렸습니다. 몇 프레임마다 데모가 계 안의 입자를 세어 히스토그램에 더하면서 \\(N\\)의 확률 분포를 쌓아 갑니다. <em>입자 종류 추가<\/em>로 다른 종류를 섞을 수 있으며, 종류마다 화학 퍼텐셜과 질량이 따로 있습니다.",
+"k6": "<span><span class=\"swatch\" id=\"measSwatch\" style=\"background:var(--o2)\"><\/span>각 \\(N\\)의 측정 빈도<\/span>\n        <span><span class=\"swatch\" style=\"background:var(--co)\"><\/span>이항 분포 예측 (이 상자에서 정확)<\/span>\n        <span><span class=\"swatch dash\"><\/span>푸아송 근사 (작은 계)<\/span>",
+"k7": "<span class=\"lt\">계의 크기<\/span>",
+"k8": "<small>상자 가운데 계가 차지하는 비율.<\/small>",
+"k9": "<span class=\"lt\">애니메이션 속도<\/span>",
+"k10": "입자 종류",
+"k11": "입자 종류 추가",
+"k12": "<small>이상 기체에서 \\(\\mu = k_{\\mathrm{B}}T\\ln(n v_Q)\\)이고, 묽은 기체는 \\(n v_Q \\ll 1\\)이므로 \\(\\mu\\)는 음수입니다. \\(\\mu\\)를 \\(k_{\\mathrm{B}}T\\)만큼 올리면 그 종류의 밀도가 \\(e\\)배가 됩니다. \\(v_Q \\propto m^{-3/2}\\)이므로 같은 \\(\\mu\\)에서 무거운 종류일수록 밀도가 높고, \\(n \\propto m^{3/2}e^{\\mu/k_{\\mathrm{B}}T}\\), 더 느리게 움직입니다.<\/small>",
+"k13": "히스토그램 표시",
+"k14": "히스토그램 지우기",
+"k15": "<span class=\"vh\">종류<\/span>",
+"k16": "<span class=\"m ovl\">N<\/span> 예측",
+"k17": "<span class=\"m ovl\">N<\/span> 측정",
+"k18": "<span class=\"m\">σ<\/span> 측정",
+"k19": "<span class=\"m\">σ<\/span> 이항",
+"k20": "<span class=\"m\">σ<\/span> 푸아송",
+"k21": "표본 수",
+"k22": "예측한 \\(\\bar{N}\\)",
+"k23": "측정한 \\(\\bar{N}\\)",
+"k24": "측정한 \\(\\sigma_N\\)",
+"k25": "이항 분포 \\(\\sigma_N\\)",
+"k26": "푸아송 \\(\\sigma_N = \\sqrt{\\bar{N}}\\)",
+"k27": "표본 수",
+"k28": "몇 초 기다리면 측정한 \\(\\sigma_N\\)이 이항 분포 값 \\(\\sqrt{\\bar{N}(1-f)}\\)에 자리 잡습니다. 상자에는 입자가 정해진 개수 \\(N_{\\text{box}}\\)만큼 있고, 입자마다 상자의 \\(f\\)만큼을 차지하는 계 안에 독립적으로 확률 \\(f\\)로 들어갑니다. 따라서 셈은 정확히 이항 분포이며, \\(\\bar{N} = N_{\\text{box}}f\\), \\(\\sigma_N^2 = \\bar{N}(1-f)\\)이고, 아무리 오래 봐도 푸아송 분포가 되지 않습니다. 열원이 계보다 훨씬 클 때(\\(\\bar{N}\\)을 고정하고 \\(f \\to 0\\))에만 \\(\\sigma_N = \\sqrt{\\bar{N}}\\)인 푸아송 분포가 되며, 이것이 아래 문제 7.6에서 유도하는 이상 기체의 결과입니다. 가장 큰 계에서는 차이가 보입니다: 입자 80개와 \\(f = 0.2\\)에서 \\(\\bar{N} = 16\\), \\(\\sigma_N = 3.58\\)인데, 푸아송은 \\(\\sqrt{16} = 4\\)입니다. 종류가 여럿이어도 서로 상호작용하지 않으므로 종류마다의 셈은 각각 이항 분포이고, 모든 입자가 같은 \\(f\\)를 보므로 전체도 이항 분포입니다. 질량과 \\(\\mu\\)는 그 종류의 입자 수와, 속력을 통해 히스토그램이 얼마나 빨리 차는지만 정합니다. <em>나란히<\/em>를 고르면 모든 종류의 측정 히스토그램을 각자의 이항 곡선(실선), 푸아송 근사(점선)와 함께 그립니다.",
+"k29": "깁스 인자",
+"k30": "바른틀의 경우처럼, 계의 상태의 확률은 그 상태와 양립하는 열원 미시 상태의 수에 비례합니다:",
+"k31": "이제 다른 점은 입자가 경계를 넘나들 수 있다는 것이므로, 열역학 항등식의 \\(\\mu\\) 항이 남습니다(\\(P\\,dV\\) 항은 여전히 무시할 만합니다):",
+"k32": "\\(dU_R = -dE\\), \\(dN_R = -dN\\)을 쓰면 각 상태는 깁스 인자라는 가중치를 받고, 규격화하면 큰 분배함수, 곧 깁스 합을 얻습니다:",
+"k33": "합은 가능한 모든 \\(N\\) 값을 포함해 계의 모든 상태에 대해 계산합니다. 입자 종류가 여럿이면 \\(\\mu N\\)이 \\(\\mu_A N_A + \\mu_B N_B + \\cdots\\)가 되는데, 바로 혈액을 다룰 때 필요한 것입니다.",
+"k34": "왜 일산화탄소가 이길까",
+"k35": "헤모글로빈의 헴 자리 하나는 아주 작은 큰 바른틀 계입니다. 비어 있거나, O<sub>2<\/sub> 하나(결합 에너지 \\(\\varepsilon\\))를 담거나, CO 하나(결합 에너지 \\(\\varepsilon'\\))를 담을 수 있습니다. 폐 근처에서 산소의 \\(\\mu\\)는 약 \\(-0.6\\ \\mathrm{eV}\\)입니다. CO는 더 단단히 결합하므로 공기 중에 조금만 있어도 자리를 빼앗습니다.",
+"k36": "비어 있음",
+"k37": "깁스 인자",
+"k38": "확률",
+"k39": "O<sub>2<\/sub>를 담음",
+"k40": "깁스 인자",
+"k41": "확률",
+"k42": "CO를 담음",
+"k43": "깁스 인자",
+"k44": "확률",
+"k45": "자리 하나를 거듭 표집한 결과. 칸 하나가 한 순간의 모습입니다: 회색은 빈 자리, 파랑은 O<sub>2<\/sub>, 빨강은 CO.",
+"k46": "의 자리가 산소를 담고 있습니다",
+"k47": "95–100%",
+"k48": "정상 범위",
+"k49": "91–94%",
+"k50": "가벼운 저산소혈증, 지켜볼 필요가 있음",
+"k51": "81–90%",
+"k52": "호흡 곤란을 동반한 저산소혈증",
+"k53": "80% 이하",
+"k54": "심한 저산소혈증",
+"k55": "O<sub>2<\/sub>만",
+"k56": "CO가 O<sub>2<\/sub>의 1/100",
+"k57": "<span class=\"lt\">온도 \\(T\\)<\/span>",
+"k58": "<small>\\(k_{\\mathrm{B}}T = {}\\)<span id=\"kTNum\"><\/span> meV<\/small>",
+"k59": "<span class=\"lt\">O<sub>2<\/sub> 화학 퍼텐셜 \\(\\mu\\)<\/span>",
+"k60": "<small>값이 낮을수록 높은 산이나 조직 깊은 곳처럼 공기가 희박함을 뜻합니다.<\/small>",
+"k61": "<span class=\"lt\">O<sub>2<\/sub> 결합 에너지 \\(\\varepsilon\\)<\/span>",
+"k62": "일산화탄소 있음",
+"k63": "<span class=\"lt\">CO가 O<sub>2<\/sub>보다 드문 정도<\/span>",
+"k64": "<small>그러면 \\(\\mu' = \\mu - k_{\\mathrm{B}}T \\ln(\\text{ratio}) = {}\\)<span id=\"mucOut\"><\/span> eV<\/small>",
+"k65": "<span class=\"lt\">CO 결합 에너지 \\(\\varepsilon'\\)<\/span>",
+"k66": "이것은 강의의 자리 하나짜리 모형이며, 실제 헤모글로빈에는 서로 협력하는 자리가 네 개 있습니다. 또한 보통의 두 파장 맥박 산소 측정기(스마트워치 같은)는 CO와 결합한 헤모글로빈을 O<sub>2<\/sub>와 결합한 헤모글로빈과 구별하지 못하므로, CO 중독 중에도 거의 정상으로 읽힐 수 있습니다. 이것이 CO가 그토록 위험한 이유 가운데 하나입니다.",
+"k67": "요동은 얼마나 클까?",
+"k68": "문제 7.6. 깁스 합을 \\(\\mu\\)로 미분할 때마다 \\(\\beta N(s)\\)가 하나씩 내려오므로, \\(\\beta = 1/k_{\\mathrm{B}}T\\)로 쓰면:",
+"k69": "\\(\\bar{N}^2\\)을 빼고 \\(\\partial\\bar{N}/\\partial\\mu\\)와 비교하면 간단한 결과를 얻습니다:",
+"k70": "이상 기체에서는 \\(\\mu = -k_{\\mathrm{B}}T \\ln\\!\\left(V Z_{\\text{int}} / N v_Q\\right)\\)이므로 \\(\\partial\\mu/\\partial N = k_{\\mathrm{B}}T/N\\)이고, 따라서 \\(\\sigma_N = \\sqrt{\\bar{N}}\\)입니다. 상대적인 퍼짐은 \\(\\sigma_N/\\bar{N} = 1/\\sqrt{\\bar{N}}\\)로, 입자가 몇 개뿐이면 크지만 거시적인 시료에서는 전혀 보이지 않습니다.",
+"k71": "\\(N\\)의 분포. 상대 폭이 보이도록 \\(0\\)부터 \\(2\\bar{N}\\)까지 그렸습니다.",
+"k72": "<span class=\"lt\">평균 입자 수 \\(\\bar{N}\\)<\/span>",
+"k73": "이상 기체가 아니어도 성립한다",
+"k74": "위의 헴 자리는 분자를 0개 또는 1개 담습니다. O<sub>2<\/sub>만 있으면 \\(\\bar{N} = p\\)이고, 깁스 합에서 바로 분산 \\(\\sigma_N^2 = p - p^2\\)을 얻습니다. 일반 공식도 일치합니다: 지금 설정(O<sub>2<\/sub>만)에서 \\(\\bar{N} = {}\\)<span id=\"c1\">–<\/span>, \\(p - p^2 = {}\\)<span id=\"c2\">–<\/span>, \\(k_{\\mathrm{B}}T\\,\\partial\\bar{N}/\\partial\\mu = {}\\)<span id=\"c3\">–<\/span>입니다.",
+"k75": "큰 자유 에너지",
+"k76": "문제 7.7. 큰 자유 에너지 \\(\\Phi \\equiv U - TS - \\mu N\\)은 \\(d\\Phi = -P\\,dV - S\\,dT - N\\,d\\mu\\)를 만족하므로 \\(N = -(\\partial\\Phi/\\partial\\mu)_{T,V}\\)입니다. 후보 \\(\\tilde{\\Phi} = -k_{\\mathrm{B}}T\\ln\\mathcal{Z}\\)도 \\((\\partial\\tilde{\\Phi}/\\partial\\mu)_{T,V} = -\\bar{N}\\)이므로 같은 방정식을 따릅니다. \\(\\mu = 0\\)에서 깁스 합은 보통의 분배함수 \\(Z\\)가 되고, 이때 \\(-k_{\\mathrm{B}}T\\ln Z = F = \\Phi\\)입니다. 같은 미분방정식, 같은 출발점이므로:",
+"k77": "아래에는 헤모글로빈 절에서 정한 온도와 결합 에너지를 써서, O<sub>2<\/sub>만 있는 헴 자리의 \\(\\Phi(\\mu)\\)를 그렸습니다. \\(\\mu\\)를 움직이며 접선의 기울기를 깁스 합으로 계산한 점유수와 비교해 보세요.",
+"k78": "<span class=\"lt\">화학 퍼텐셜 \\(\\mu\\)<\/span>",
+"k79": "\\(\\Phi = -k_{\\mathrm{B}}T\\ln\\!\\left(1 + e^{-(\\varepsilon-\\mu)/k_{\\mathrm{B}}T}\\right)\\), eV 단위, 고른 \\(\\mu\\)에서의 접선과 함께.",
+"k80": "깁스 합으로 구한 점유수 \\(\\bar{N}\\). \\(\\mu\\)가 \\(\\varepsilon\\)을 지나면서 켜집니다.",
+"k81": "이 \\(\\mu\\)에서의 \\(\\Phi\\)",
+"k82": "\\(-\\partial\\Phi/\\partial\\mu\\) (접선 기울기)",
+"k83": "깁스 합으로 구한 \\(\\bar{N}\\)",
+"k84": "양자 통계에 관한 이상훈 교수의 강의 노트(7.1절, 깁스 인자, 문제 7.6과 7.7 포함)를 바탕으로 Claude Opus 5.5가 만들었습니다.",
+"k85": "물리 상수: \\(k_{\\mathrm{B}} = 8.617 \\times 10^{-5}\\ \\mathrm{eV/K}\\). 헤모글로빈 모형의 숫자는 강의의 예시 값입니다. 수식은 MathJax로 조판했습니다."
+};
+(function(){
+  // English / 한국어 switch shared by the course demos; the choice is remembered across pages
+  var KEY='lshlj82-demo-lang', root=document.documentElement, KO=window.I18N_KO||{}, EN={};
+  var els=[].slice.call(document.querySelectorAll('[data-k]'));
+  els.forEach(function(e){EN[e.getAttribute('data-k')]=e.innerHTML;});
+  var titleEN=document.title;
+  var btn=document.createElement('button');btn.id='langBtn';btn.type='button';document.body.appendChild(btn);
+  function typeset(list){
+    if(!list.length)return;
+    if(window.MathJax&&MathJax.typesetPromise){var go=function(){MathJax.typesetPromise(list).catch(function(){});};
+      if(MathJax.startup&&MathJax.startup.promise)MathJax.startup.promise.then(go);else go();}
+    if(window.renderMathInElement&&window.KATEX_OPTS)list.forEach(function(e){try{renderMathInElement(e,window.KATEX_OPTS)}catch(_){}}); 
+  }
+  function apply(l,first){
+    window.LANG=l;root.dataset.lang=l;root.lang=l;var changed=[];
+    els.forEach(function(e){var k=e.getAttribute('data-k'),s=(l==='ko'&&KO[k]!=null)?KO[k]:EN[k];if(e.innerHTML!==s){e.innerHTML=s;changed.push(e);}});
+    document.title=(l==='ko'&&KO.__title)?KO.__title:titleEN;
+    btn.textContent=l==='ko'?'EN':'한국어';btn.setAttribute('aria-label',l==='ko'?'View in English':'한국어로 보기');btn.title=btn.getAttribute('aria-label');
+    btn.setAttribute('lang',l==='ko'?'en':'ko');
+    if(!first)typeset(changed);
+    window.dispatchEvent(new CustomEvent('langchange',{detail:{lang:l}}));
+    // canvases drawn before the Korean web font arrives are redrawn once it has loaded
+    if(l==='ko'&&document.fonts&&!document.fonts.check('16px "IBM Plex Sans KR"','가'))document.fonts.load('16px "IBM Plex Sans KR"','가').then(function(){if(window.LANG==='ko')window.dispatchEvent(new CustomEvent('langchange',{detail:{lang:'ko'}}));}).catch(function(){});
+  }
+  btn.addEventListener('click',function(){var n=window.LANG==='ko'?'en':'ko';try{localStorage.setItem(KEY,n)}catch(e){}apply(n,false);});
+  apply(window.LANG||'en',true);
+})();
+</script>
+<!-- lang-toggle:body-end -->
 </body>
 </html>
